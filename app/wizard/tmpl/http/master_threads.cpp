@@ -132,3 +132,9 @@ bool master_service::proc_exit_timer(size_t nclients, size_t nthreads)
 
 	return false;
 }
+
+bool master_service::proc_on_sighup(acl::string&)
+{
+	logger(">>>proc_on_sighup<<<");
+	return true;
+}

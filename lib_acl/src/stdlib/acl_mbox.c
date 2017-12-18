@@ -15,38 +15,57 @@
 
 #endif
 
+#if defined(ACL_LINUX)
+# include <linux/version.h>
+# if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,22)
+#  include <sys/eventfd.h>
+#  define HAS_EVENTFD
+# else
+#  undef  HAS_EVENTFD
+# endif
+#else
+#  undef  HAS_EVENTFD
+#endif
+
 struct ACL_MBOX {
-	ACL_VSTREAM *in;
-	ACL_VSTREAM *out;
+	ACL_SOCKET in;
+	ACL_SOCKET out;
 	size_t nsend;
 	size_t nread;
 	ACL_YPIPE *ypipe;
 	acl_pthread_mutex_t *lock;
 };
 
-static const char __key[] = "k";
-
 ACL_MBOX *acl_mbox_create(void)
 {
 	ACL_MBOX *mbox;
 	ACL_SOCKET fds[2];
 
+#if defined(HAS_EVENTFD)
+# if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,27)
+	int flags = FD_CLOEXEC;
+# else
+	int flags = 0;
+# endif
+	fds[0] = eventfd(0, flags);
+	fds[1] = fds[0];
+#else
 	if (acl_sane_socketpair(AF_UNIX, SOCK_STREAM, 0, fds) < 0) {
 		acl_msg_error("%s(%d), %s: acl_duplex_pipe error %s",
 			__FILE__, __LINE__, __FUNCTION__, acl_last_serror());
 		return NULL;
 	}
+#endif
 
 	mbox        = (ACL_MBOX *) acl_mymalloc(sizeof(ACL_MBOX));
-	mbox->in    = acl_vstream_fdopen(fds[0], O_RDONLY, sizeof(__key),
-			0, ACL_VSTREAM_TYPE_SOCK);
-	mbox->out   = acl_vstream_fdopen(fds[1], O_WRONLY, sizeof(__key),
-			0, ACL_VSTREAM_TYPE_SOCK);
+	mbox->in    = fds[0];
+	mbox->out   = fds[1];
 	mbox->nsend = 0;
 	mbox->nread = 0;
 	mbox->ypipe = acl_ypipe_new();
 	mbox->lock  = (acl_pthread_mutex_t *)
 		acl_mycalloc(1, sizeof(acl_pthread_mutex_t));
+
 	if (acl_pthread_mutex_init(mbox->lock, NULL) != 0)
 		acl_msg_fatal("%s(%d), %s: acl_pthread_mutex_init error",
 			__FILE__, __LINE__, __FUNCTION__);
@@ -56,8 +75,9 @@ ACL_MBOX *acl_mbox_create(void)
 
 void acl_mbox_free(ACL_MBOX *mbox, void (*free_fn)(void*))
 {
-	acl_vstream_close(mbox->in);
-	acl_vstream_close(mbox->out);
+	acl_socket_close(mbox->in);
+	if (mbox->out != mbox->in)
+		acl_socket_close(mbox->out);
 	acl_ypipe_free(mbox->ypipe, free_fn);
 	acl_pthread_mutex_destroy(mbox->lock);
 	acl_myfree(mbox->lock);
@@ -67,29 +87,41 @@ void acl_mbox_free(ACL_MBOX *mbox, void (*free_fn)(void*))
 int acl_mbox_send(ACL_MBOX *mbox, void *msg)
 {
 	int ret;
+	long long n = 1;
 
 	acl_pthread_mutex_lock(mbox->lock);
 	acl_ypipe_write(mbox->ypipe, msg);
 	ret = acl_ypipe_flush(mbox->ypipe);
+#if defined(HAS_EVENTFD)
 	acl_pthread_mutex_unlock(mbox->lock);
-	if (ret == 0)
+#endif
+	if (ret == 0) {
+#if !defined(HAS_EVENTFD)
+		acl_pthread_mutex_unlock(mbox->lock);
+#endif
 		return 0;
+	}
 
 	mbox->nsend++;
 
-	if (acl_vstream_writen(mbox->out, __key, sizeof(__key) - 1)
-		== ACL_VSTREAM_EOF)
-	{
-		return -1;
-	} else
-		return 0;
+	ret = acl_socket_write(mbox->out, &n, sizeof(n), 0, NULL, NULL);
+#if !defined(HAS_EVENTFD)
+	acl_pthread_mutex_unlock(mbox->lock);
+#endif
 
+	if (ret == -1) {
+		acl_msg_error("%s(%d), %s: mbox write %d error %s", __FILE__,
+			__LINE__, __FUNCTION__, mbox->out, acl_last_serror());
+		return -1;
+	}
+
+	return 0;
 }
 
 void *acl_mbox_read(ACL_MBOX *mbox, int timeout, int *success)
 {
-	int   ret;
-	char  kbuf[sizeof(__key)];
+	int  ret;
+	long long n;
 	void *msg = acl_ypipe_read(mbox->ypipe);
 
 	if (msg != NULL) {
@@ -99,24 +131,23 @@ void *acl_mbox_read(ACL_MBOX *mbox, int timeout, int *success)
 	}
 
 	mbox->nread++;
-	mbox->in->rw_timeout = timeout;
 
-	ret = acl_vstream_readn(mbox->in, kbuf, sizeof(kbuf) - 1);
-	if (ret == ACL_VSTREAM_EOF) {
-		if (mbox->in->errnum == ACL_ETIMEDOUT) {
+#ifdef ACL_UNIX
+	if (timeout >= 0 && acl_read_poll_wait(mbox->in, timeout) < 0)
+#else
+	if (timeout >= 0 && acl_read_select_wait(mbox->in, timeout) < 0)
+#endif
+	{
+		if (acl_last_error() == ACL_ETIMEDOUT) {
 			if (success)
 				*success = 1;
-			return NULL;
-		}
-
-		if (success)
+		} else if (success)
 			*success = 0;
 		return NULL;
 	}
 
-	if (kbuf[0] != __key[0]) {
-		acl_msg_error("%s(%d), %s: read invalid: %c",
-			__FILE__, __LINE__, __FUNCTION__, kbuf[0]);
+	ret = acl_socket_read(mbox->in, &n, sizeof(n), 0, NULL, NULL);
+	if (ret == -1) {
 		if (success)
 			*success = 0;
 		return NULL;
@@ -124,6 +155,7 @@ void *acl_mbox_read(ACL_MBOX *mbox, int timeout, int *success)
 
 	if (success)
 		*success = 1;
+
 	return acl_ypipe_read(mbox->ypipe);
 }
 

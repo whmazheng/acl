@@ -7,6 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		07384F3F1EB99FFF00084CAD /* pgsql_conf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 07384F3C1EB99FFF00084CAD /* pgsql_conf.cpp */; };
+		07384F401EB99FFF00084CAD /* pgsql_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 07384F3D1EB99FFF00084CAD /* pgsql_manager.cpp */; };
+		07384F411EB99FFF00084CAD /* pgsql_pool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 07384F3E1EB99FFF00084CAD /* pgsql_pool.cpp */; };
+		07384F461EB9A57D00084CAD /* db_pgsql.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 07384F451EB9A57D00084CAD /* db_pgsql.cpp */; };
+		0778DAD91F1CB2AB0011B753 /* tcp_client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0778DAD31F1CB2AB0011B753 /* tcp_client.cpp */; };
+		0778DADA1F1CB2AB0011B753 /* tcp_ipc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0778DAD41F1CB2AB0011B753 /* tcp_ipc.cpp */; };
+		0778DADB1F1CB2AB0011B753 /* tcp_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0778DAD51F1CB2AB0011B753 /* tcp_manager.cpp */; };
+		0778DADC1F1CB2AB0011B753 /* tcp_pool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0778DAD61F1CB2AB0011B753 /* tcp_pool.cpp */; };
+		0778DADD1F1CB2AB0011B753 /* tcp_reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0778DAD71F1CB2AB0011B753 /* tcp_reader.cpp */; };
+		0778DADE1F1CB2AB0011B753 /* tcp_sender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0778DAD81F1CB2AB0011B753 /* tcp_sender.cpp */; };
+		0778DAE31F1CB70A0011B753 /* atomic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0778DAE21F1CB70A0011B753 /* atomic.cpp */; };
+		0778DAE61F1CB7150011B753 /* thread_cond.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0778DAE41F1CB7150011B753 /* thread_cond.cpp */; };
+		0778DAE71F1CB7150011B753 /* thread_mutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0778DAE51F1CB7150011B753 /* thread_mutex.cpp */; };
+		0778DAEA1F1CB8EB0011B753 /* bitmap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0778DAE91F1CB8EB0011B753 /* bitmap.cpp */; };
+		0778DAEE1F78D3FC0011B753 /* event_mutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0778DAED1F78D3FC0011B753 /* event_mutex.cpp */; };
 		07A458351E6FCCB4002C9B3C /* acl_cpp.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 07A458341E6FCCB4002C9B3C /* acl_cpp.h */; };
 		07A458371E6FCCB4002C9B3C /* acl_cpp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 07A458361E6FCCB4002C9B3C /* acl_cpp.mm */; };
 		07A467C01E6FCCF1002C9B3C /* acl_cpp_init.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 07A466DA1E6FCCF1002C9B3C /* acl_cpp_init.cpp */; };
@@ -208,6 +223,37 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		07384F391EB99FEB00084CAD /* pgsql_conf.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = pgsql_conf.hpp; sourceTree = "<group>"; };
+		07384F3A1EB99FEB00084CAD /* pgsql_manager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = pgsql_manager.hpp; sourceTree = "<group>"; };
+		07384F3B1EB99FEB00084CAD /* pgsql_pool.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = pgsql_pool.hpp; sourceTree = "<group>"; };
+		07384F3C1EB99FFF00084CAD /* pgsql_conf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pgsql_conf.cpp; sourceTree = "<group>"; };
+		07384F3D1EB99FFF00084CAD /* pgsql_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pgsql_manager.cpp; sourceTree = "<group>"; };
+		07384F3E1EB99FFF00084CAD /* pgsql_pool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pgsql_pool.cpp; sourceTree = "<group>"; };
+		07384F441EB9A2C100084CAD /* db_pgsql.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = db_pgsql.hpp; sourceTree = "<group>"; };
+		07384F451EB9A57D00084CAD /* db_pgsql.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = db_pgsql.cpp; sourceTree = "<group>"; };
+		0778DACD1F1CB2920011B753 /* tcp_client.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = tcp_client.hpp; sourceTree = "<group>"; };
+		0778DACE1F1CB2920011B753 /* tcp_ipc.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = tcp_ipc.hpp; sourceTree = "<group>"; };
+		0778DACF1F1CB2920011B753 /* tcp_manager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = tcp_manager.hpp; sourceTree = "<group>"; };
+		0778DAD01F1CB2920011B753 /* tcp_pool.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = tcp_pool.hpp; sourceTree = "<group>"; };
+		0778DAD11F1CB2920011B753 /* tcp_reader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = tcp_reader.hpp; sourceTree = "<group>"; };
+		0778DAD21F1CB2920011B753 /* tcp_sender.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = tcp_sender.hpp; sourceTree = "<group>"; };
+		0778DAD31F1CB2AB0011B753 /* tcp_client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tcp_client.cpp; sourceTree = "<group>"; };
+		0778DAD41F1CB2AB0011B753 /* tcp_ipc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tcp_ipc.cpp; sourceTree = "<group>"; };
+		0778DAD51F1CB2AB0011B753 /* tcp_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tcp_manager.cpp; sourceTree = "<group>"; };
+		0778DAD61F1CB2AB0011B753 /* tcp_pool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tcp_pool.cpp; sourceTree = "<group>"; };
+		0778DAD71F1CB2AB0011B753 /* tcp_reader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tcp_reader.cpp; sourceTree = "<group>"; };
+		0778DAD81F1CB2AB0011B753 /* tcp_sender.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tcp_sender.cpp; sourceTree = "<group>"; };
+		0778DADF1F1CB6BD0011B753 /* thread_cond.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = thread_cond.hpp; sourceTree = "<group>"; };
+		0778DAE01F1CB6CB0011B753 /* atomic.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = atomic.hpp; sourceTree = "<group>"; };
+		0778DAE11F1CB6D50011B753 /* thread_mutex.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = thread_mutex.hpp; sourceTree = "<group>"; };
+		0778DAE21F1CB70A0011B753 /* atomic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = atomic.cpp; sourceTree = "<group>"; };
+		0778DAE41F1CB7150011B753 /* thread_cond.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread_cond.cpp; sourceTree = "<group>"; };
+		0778DAE51F1CB7150011B753 /* thread_mutex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread_mutex.cpp; sourceTree = "<group>"; };
+		0778DAE81F1CB8C90011B753 /* bitmap.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = bitmap.hpp; sourceTree = "<group>"; };
+		0778DAE91F1CB8EB0011B753 /* bitmap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bitmap.cpp; sourceTree = "<group>"; };
+		0778DAEB1F1CC19B0011B753 /* trigger.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = trigger.hpp; sourceTree = "<group>"; };
+		0778DAEC1F78D3EC0011B753 /* event_mutex.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = event_mutex.hpp; sourceTree = "<group>"; };
+		0778DAED1F78D3FC0011B753 /* event_mutex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = event_mutex.cpp; sourceTree = "<group>"; };
 		07A458311E6FCCB4002C9B3C /* libacl_cpp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libacl_cpp.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		07A458341E6FCCB4002C9B3C /* acl_cpp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = acl_cpp.h; sourceTree = "<group>"; };
 		07A458361E6FCCB4002C9B3C /* acl_cpp.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = acl_cpp.mm; sourceTree = "<group>"; };
@@ -726,6 +772,12 @@
 		07A466F61E6FCCF1002C9B3C /* connpool */ = {
 			isa = PBXGroup;
 			children = (
+				0778DAD31F1CB2AB0011B753 /* tcp_client.cpp */,
+				0778DAD41F1CB2AB0011B753 /* tcp_ipc.cpp */,
+				0778DAD51F1CB2AB0011B753 /* tcp_manager.cpp */,
+				0778DAD61F1CB2AB0011B753 /* tcp_pool.cpp */,
+				0778DAD71F1CB2AB0011B753 /* tcp_reader.cpp */,
+				0778DAD81F1CB2AB0011B753 /* tcp_sender.cpp */,
 				07A466F71E6FCCF1002C9B3C /* check_client.cpp */,
 				07A466F81E6FCCF1002C9B3C /* check_rpc.cpp */,
 				07A466F91E6FCCF1002C9B3C /* check_rpc.hpp */,
@@ -741,6 +793,10 @@
 		07A466FF1E6FCCF1002C9B3C /* db */ = {
 			isa = PBXGroup;
 			children = (
+				07384F451EB9A57D00084CAD /* db_pgsql.cpp */,
+				07384F3C1EB99FFF00084CAD /* pgsql_conf.cpp */,
+				07384F3D1EB99FFF00084CAD /* pgsql_manager.cpp */,
+				07384F3E1EB99FFF00084CAD /* pgsql_pool.cpp */,
 				07A467001E6FCCF1002C9B3C /* db_handle.cpp */,
 				07A467011E6FCCF1002C9B3C /* db_mysql.cpp */,
 				07A467021E6FCCF1002C9B3C /* db_pool.cpp */,
@@ -771,6 +827,7 @@
 		07A467111E6FCCF1002C9B3C /* event */ = {
 			isa = PBXGroup;
 			children = (
+				0778DAED1F78D3FC0011B753 /* event_mutex.cpp */,
 				07A467121E6FCCF1002C9B3C /* event_timer.cpp */,
 			);
 			path = event;
@@ -961,6 +1018,10 @@
 		07A4678C1E6FCCF1002C9B3C /* stdlib */ = {
 			isa = PBXGroup;
 			children = (
+				0778DAE91F1CB8EB0011B753 /* bitmap.cpp */,
+				0778DAE41F1CB7150011B753 /* thread_cond.cpp */,
+				0778DAE51F1CB7150011B753 /* thread_mutex.cpp */,
+				0778DAE21F1CB70A0011B753 /* atomic.cpp */,
 				07A4D1721E94E4BC00790E12 /* mbox.cpp */,
 				07A4678D1E6FCCF1002C9B3C /* charset_conv.cpp */,
 				07A4678E1E6FCCF1002C9B3C /* dbuf_pool.cpp */,
@@ -1129,6 +1190,12 @@
 		07A4689C1E6FD404002C9B3C /* connpool */ = {
 			isa = PBXGroup;
 			children = (
+				0778DACD1F1CB2920011B753 /* tcp_client.hpp */,
+				0778DACE1F1CB2920011B753 /* tcp_ipc.hpp */,
+				0778DACF1F1CB2920011B753 /* tcp_manager.hpp */,
+				0778DAD01F1CB2920011B753 /* tcp_pool.hpp */,
+				0778DAD11F1CB2920011B753 /* tcp_reader.hpp */,
+				0778DAD21F1CB2920011B753 /* tcp_sender.hpp */,
 				07A4689D1E6FD404002C9B3C /* check_client.hpp */,
 				07A4689E1E6FD404002C9B3C /* connect_client.hpp */,
 				07A4689F1E6FD404002C9B3C /* connect_manager.hpp */,
@@ -1141,6 +1208,10 @@
 		07A468A21E6FD404002C9B3C /* db */ = {
 			isa = PBXGroup;
 			children = (
+				07384F441EB9A2C100084CAD /* db_pgsql.hpp */,
+				07384F391EB99FEB00084CAD /* pgsql_conf.hpp */,
+				07384F3A1EB99FEB00084CAD /* pgsql_manager.hpp */,
+				07384F3B1EB99FEB00084CAD /* pgsql_pool.hpp */,
 				07A468A31E6FD404002C9B3C /* db_handle.hpp */,
 				07A468A41E6FD404002C9B3C /* db_mysql.hpp */,
 				07A468A51E6FD404002C9B3C /* db_pool.hpp */,
@@ -1172,6 +1243,7 @@
 		07A468B51E6FD404002C9B3C /* event */ = {
 			isa = PBXGroup;
 			children = (
+				0778DAEC1F78D3EC0011B753 /* event_mutex.hpp */,
 				07A468B61E6FD404002C9B3C /* event_timer.hpp */,
 			);
 			path = event;
@@ -1343,6 +1415,11 @@
 		07A469191E6FD404002C9B3C /* stdlib */ = {
 			isa = PBXGroup;
 			children = (
+				0778DAEB1F1CC19B0011B753 /* trigger.hpp */,
+				0778DAE81F1CB8C90011B753 /* bitmap.hpp */,
+				0778DAE11F1CB6D50011B753 /* thread_mutex.hpp */,
+				0778DAE01F1CB6CB0011B753 /* atomic.hpp */,
+				0778DADF1F1CB6BD0011B753 /* thread_cond.hpp */,
 				07A4D1711E94E4A000790E12 /* mbox.hpp */,
 				07A4691A1E6FD404002C9B3C /* charset_conv.hpp */,
 				07A4691B1E6FD404002C9B3C /* dbuf_pool.hpp */,
@@ -1431,7 +1508,7 @@
 		07A458291E6FCCB4002C9B3C /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0730;
+				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = zsx;
 				TargetAttributes = {
 					07A458301E6FCCB4002C9B3C = {
@@ -1468,6 +1545,7 @@
 				07A468251E6FCCF1002C9B3C /* rfc2047.cpp in Sources */,
 				07A468291E6FCCF1002C9B3C /* redis.cpp in Sources */,
 				07A467C31E6FCCF1002C9B3C /* CORSOperation.cpp in Sources */,
+				07384F461EB9A57D00084CAD /* db_pgsql.cpp in Sources */,
 				07A467F11E6FCCF1002C9B3C /* http_mime.cpp in Sources */,
 				07A468171E6FCCF1002C9B3C /* tok822_parse.cpp in Sources */,
 				07A468541E6FCCF1002C9B3C /* sha1.cpp in Sources */,
@@ -1506,6 +1584,7 @@
 				07A467DA1E6FCCF1002C9B3C /* db_service_mysql.cpp in Sources */,
 				07A4683D1E6FCCF1002C9B3C /* redis_string.cpp in Sources */,
 				07A468051E6FCCF1002C9B3C /* master_conf.cpp in Sources */,
+				0778DAEE1F78D3FC0011B753 /* event_mutex.cpp in Sources */,
 				07A4683E1E6FCCF1002C9B3C /* redis_transaction.cpp in Sources */,
 				07A467DD1E6FCCF1002C9B3C /* mysql_conf.cpp in Sources */,
 				07A4683A1E6FCCF1002C9B3C /* redis_server.cpp in Sources */,
@@ -1515,6 +1594,7 @@
 				07A4685C1E6FCCF1002C9B3C /* xml.cpp in Sources */,
 				07A467F81E6FCCF1002C9B3C /* http_utils.cpp in Sources */,
 				07A468411E6FCCF1002C9B3C /* memcache_session.cpp in Sources */,
+				0778DADB1F1CB2AB0011B753 /* tcp_manager.cpp in Sources */,
 				07A4681B1E6FCCF1002C9B3C /* mime_attach.cpp in Sources */,
 				07A468191E6FCCF1002C9B3C /* trimblanks.cpp in Sources */,
 				07A467E11E6FCCF1002C9B3C /* sqlite_manager.cpp in Sources */,
@@ -1528,6 +1608,7 @@
 				07A4681F1E6FCCF1002C9B3C /* mime_head.cpp in Sources */,
 				07A468571E6FCCF1002C9B3C /* thread.cpp in Sources */,
 				07A468101E6FCCF1002C9B3C /* mime_state.cpp in Sources */,
+				07384F3F1EB99FFF00084CAD /* pgsql_conf.cpp in Sources */,
 				07A4685D1E6FCCF1002C9B3C /* xml1.cpp in Sources */,
 				07A467E21E6FCCF1002C9B3C /* sqlite_pool.cpp in Sources */,
 				07A467EB1E6FCCF1002C9B3C /* hsrow.cpp in Sources */,
@@ -1558,7 +1639,9 @@
 				07A467FA1E6FCCF1002C9B3C /* HttpServlet.cpp in Sources */,
 				07A468591E6FCCF1002C9B3C /* thread_queue.cpp in Sources */,
 				07A4686C1E6FCCF1002C9B3C /* istream.cpp in Sources */,
+				0778DADE1F1CB2AB0011B753 /* tcp_sender.cpp in Sources */,
 				07A467DE1E6FCCF1002C9B3C /* mysql_manager.cpp in Sources */,
+				07384F411EB99FFF00084CAD /* pgsql_pool.cpp in Sources */,
 				07A4682C1E6FCCF1002C9B3C /* redis_client_pool.cpp in Sources */,
 				07A468731E6FCCF1002C9B3C /* stdin_stream.cpp in Sources */,
 				07A468681E6FCCF1002C9B3C /* aio_timer_callback.cpp in Sources */,
@@ -1568,7 +1651,9 @@
 				07A468721E6FCCF1002C9B3C /* socket_stream.cpp in Sources */,
 				07A467CD1E6FCCF1002C9B3C /* OSSClient.cpp in Sources */,
 				07A468031E6FCCF1002C9B3C /* master_aio.cpp in Sources */,
+				0778DADA1F1CB2AB0011B753 /* tcp_ipc.cpp in Sources */,
 				07A467E61E6FCCF1002C9B3C /* event_timer.cpp in Sources */,
+				0778DADC1F1CB2AB0011B753 /* tcp_pool.cpp in Sources */,
 				07A468371E6FCCF1002C9B3C /* redis_request.cpp in Sources */,
 				07A4682D1E6FCCF1002C9B3C /* redis_cluster.cpp in Sources */,
 				07A4684B1E6FCCF1002C9B3C /* escape.cpp in Sources */,
@@ -1577,12 +1662,14 @@
 				07A468421E6FCCF1002C9B3C /* redis_session.cpp in Sources */,
 				07A4684E1E6FCCF1002C9B3C /* locker.cpp in Sources */,
 				07A467F91E6FCCF1002C9B3C /* HttpCookie.cpp in Sources */,
+				07384F401EB99FFF00084CAD /* pgsql_manager.cpp in Sources */,
 				07A467D51E6FCCF1002C9B3C /* connect_pool.cpp in Sources */,
 				07A468511E6FCCF1002C9B3C /* md5.cpp in Sources */,
 				07A467CF1E6FCCF1002C9B3C /* beanstalk_pool.cpp in Sources */,
 				07A468741E6FCCF1002C9B3C /* stdout_stream.cpp in Sources */,
 				07A468551E6FCCF1002C9B3C /* snprintf.cpp in Sources */,
 				07A4680E1E6FCCF1002C9B3C /* header_token.cpp in Sources */,
+				0778DAE61F1CB7150011B753 /* thread_cond.cpp in Sources */,
 				07A467FD1E6FCCF1002C9B3C /* HttpSession.cpp in Sources */,
 				07A468091E6FCCF1002C9B3C /* master_udp.cpp in Sources */,
 				07A4681A1E6FCCF1002C9B3C /* mime.cpp in Sources */,
@@ -1597,6 +1684,7 @@
 				07A468221E6FCCF1002C9B3C /* mime_quoted_printable.cpp in Sources */,
 				07A468311E6FCCF1002C9B3C /* redis_hash.cpp in Sources */,
 				07A467C61E6FCCF1002C9B3C /* OSSObjectOperation.cpp in Sources */,
+				0778DAEA1F1CB8EB0011B753 /* bitmap.cpp in Sources */,
 				07A467C51E6FCCF1002C9B3C /* OSSMultipartOperation.cpp in Sources */,
 				07A4684C1E6FCCF1002C9B3C /* win_iconv.cpp in Sources */,
 				07A468131E6FCCF1002C9B3C /* quote_822_local.cpp in Sources */,
@@ -1606,12 +1694,15 @@
 				07A468471E6FCCF1002C9B3C /* smtp_client.cpp in Sources */,
 				07A468381E6FCCF1002C9B3C /* redis_result.cpp in Sources */,
 				07A467F51E6FCCF1002C9B3C /* http_request_pool.cpp in Sources */,
+				0778DADD1F1CB2AB0011B753 /* tcp_reader.cpp in Sources */,
+				0778DAE71F1CB7150011B753 /* thread_mutex.cpp in Sources */,
 				07A468691E6FCCF1002C9B3C /* aio_timer_delay_free.cpp in Sources */,
 				07A458371E6FCCB4002C9B3C /* acl_cpp.mm in Sources */,
 				07A468271E6FCCF1002C9B3C /* queue_file.cpp in Sources */,
 				07A4686F1E6FCCF1002C9B3C /* polarssl_conf.cpp in Sources */,
 				07A468461E6FCCF1002C9B3C /* mail_message.cpp in Sources */,
 				07A468431E6FCCF1002C9B3C /* session.cpp in Sources */,
+				0778DAE31F1CB70A0011B753 /* atomic.cpp in Sources */,
 				07A468651E6FCCF1002C9B3C /* aio_ostream.cpp in Sources */,
 				07A468081E6FCCF1002C9B3C /* master_trigger.cpp in Sources */,
 				07A468241E6FCCF1002C9B3C /* mime_xxcode.cpp in Sources */,
@@ -1625,6 +1716,7 @@
 				07A468521E6FCCF1002C9B3C /* pipe_stream.cpp in Sources */,
 				07A468121E6FCCF1002C9B3C /* quote_821_local.cpp in Sources */,
 				07A468061E6FCCF1002C9B3C /* master_proc.cpp in Sources */,
+				0778DAD91F1CB2AB0011B753 /* tcp_client.cpp in Sources */,
 				07A468491E6FCCF1002C9B3C /* dbuf_pool.cpp in Sources */,
 				07A467C41E6FCCF1002C9B3C /* OSSBucketOperation.cpp in Sources */,
 				07A467D41E6FCCF1002C9B3C /* connect_monitor.cpp in Sources */,
@@ -1664,8 +1756,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1673,6 +1767,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1681,6 +1776,9 @@
 					"DEBUG=1",
 					"$(inherited)",
 					ACL_PREPARE_COMPILE,
+					HAS_MYSQL,
+					HAS_PGSQL,
+					HAS_SQLITE,
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -1688,9 +1786,20 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				HEADER_SEARCH_PATHS = (
+					../include/zlib,
+					../include/polarssl,
+					../include/sqlite,
+					../include/pgsql,
+					../include/mysql,
+					../lib_acl_cpp/src,
+					../lib_acl_cpp/include,
+					../lib_protocol/include,
+					../lib_acl/include,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -1709,8 +1818,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1718,16 +1829,33 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = ACL_PREPARE_COMPILE;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					ACL_PREPARE_COMPILE,
+					HAS_MYSQL,
+					HAS_PGSQL,
+					HAS_SQLITE,
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				HEADER_SEARCH_PATHS = (
+					../include/zlib,
+					../include/polarssl,
+					../include/sqlite,
+					../include/pgsql,
+					../include/mysql,
+					../lib_acl_cpp/src,
+					../lib_acl_cpp/include,
+					../lib_protocol/include,
+					../lib_acl/include,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = iphoneos;
@@ -1741,6 +1869,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					HAS_MYSQL,
+					HAS_PGSQL,
 					HAS_SQLITE,
 				);
 				HEADER_SEARCH_PATHS = (
@@ -1749,6 +1878,7 @@
 					../lib_acl_cpp/include,
 					../lib_acl_cpp/src,
 					../include/mysql,
+					../include/pgsql,
 					../include/polarssl,
 					../include/zlib,
 				);
@@ -1764,6 +1894,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					HAS_MYSQL,
+					HAS_PGSQL,
 					HAS_SQLITE,
 				);
 				HEADER_SEARCH_PATHS = (
@@ -1772,6 +1903,7 @@
 					../lib_acl_cpp/include,
 					../lib_acl_cpp/src,
 					../include/mysql,
+					../include/pgsql,
 					../include/polarssl,
 					../include/zlib,
 				);

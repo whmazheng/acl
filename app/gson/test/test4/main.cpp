@@ -6,7 +6,7 @@
 #include <iostream>
 #include <time.h>
 #include "struct.h"  // 由 gson 工具根据 struct.stub 转换而成
-#include "gson.h"    // 由 gson 工具根据 struct.stub 生成
+#include "struct.gson.h"    // 由 gson 工具根据 struct.stub 生成
 
 // 序列化过程
 static void serialize(void)
@@ -48,7 +48,7 @@ static void serialize(void)
 // 反序列化过程
 static void deserialize(void)
 {
-	const char *s = "{\"name\": \"zsxxsz\", \"domain\": \"263.net\", \"age\": 11, \"male\": true, \"names\": [{\"zsx1\": [\"zsx11\", \"zsx12\", \"zsx13\", \"zsx14\"]}, {\"zsx2\": [\"zsx21\", \"zsx22\", \"zsx23\", \"zsx24\"]}]}";
+	const char *s = "{\"name\": \"zsxxsz\", \"domain\": \"263.net\", \"age\": 11, \"male\": true, \"names\": [{\"zsx1\": [\"zsx11\", \"zsx12\", \"zsx13\", \"zsx14\"]}, {\"zsx2\": [\"zsx21\", \"zsx22\", \"zsx23\", \"zsx24\"]}], \"values5\": [100, 1000, 10000]}";
 
 	acl::json json;
 	json.update(s);
@@ -83,11 +83,22 @@ static void deserialize(void)
 
 		printf("\r\n");
 	}
+
+	printf("pids: ");
+	for (std::set<int>::const_iterator cit2 = u.values5.begin();
+		cit2 != u.values5.end(); ++cit2)
+	{
+		if (cit2 != u.values5.begin())
+			printf(", ");
+		printf("%d", *cit2);
+	}
+	printf("\r\n");
 }
 
 int main(void)
 {
 	serialize();
 	deserialize();
+	printf("Enter any key to continue ..."); fflush(stdout); getchar();
 	return 0;
 }

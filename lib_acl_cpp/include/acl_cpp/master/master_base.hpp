@@ -1,6 +1,6 @@
 #pragma once
-#include "acl_cpp/acl_cpp_define.hpp"
-#include "acl_cpp/master/master_conf.hpp"
+#include "../acl_cpp_define.hpp"
+#include "master_conf.hpp"
 #include <vector>
 
 struct ACL_EVENT;
@@ -10,6 +10,7 @@ namespace acl
 
 class server_socket;
 class event_timer;
+class string;
 
 class ACL_CPP_API master_base
 {
@@ -91,6 +92,11 @@ protected:
 	 * 当进程退出前调用的回调函数
 	 */
 	virtual void proc_on_exit() {}
+
+	/**
+	 * 当收到 SIGHUP 信号时的回调虚方法
+	 */
+	virtual bool proc_on_sighup(string&) { return true; }
 
 	// 配置对象
 	master_conf conf_;

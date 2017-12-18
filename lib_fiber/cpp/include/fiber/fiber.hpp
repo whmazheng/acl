@@ -108,18 +108,37 @@ public:
 	static void ready(fiber& f);
 
 	/**
+	 * 使当前运行的协程休眠指定毫秒数
+	 * @param milliseconds {unsigned int} 指定要休眠的毫秒数
+	 * @return {unsigned int} 本协程休眠后再次被唤醒后剩余的毫秒数
+	 */
+	static unsigned int delay(unsigned int milliseconds);
+
+	/**
 	 * 线程启动后调用此函数设置当前线程是否需要 hook 系统 API，内部缺省
 	 * 会 hook 系统 API
 	 * @param on {bool}
 	 */
 	static void hook_api(bool on);
 
+	/**
+	 * 获得当前系统级错误号
+	 * @return {int}
+	 */
+	static int  get_sys_errno(void);
+
+	/**
+	 * 设置当前系统级错误号
+	 * @param errnum {int}
+	 */
+	static void set_sys_errno(int errnum);
+
 public:
 	/**
 	 * 返回本协程对象对应的 C 语言的协程对象
-	 * @return {ACL_FIBER *}
+	 * @return {ACL_FIBER* }
 	 */
-	ACL_FIBER *get_fiber(void) const;
+	ACL_FIBER* get_fiber(void) const;
 
 protected:
 	/**
@@ -130,9 +149,96 @@ protected:
 	virtual void run(void);
 
 private:
-	ACL_FIBER *f_;
+	ACL_FIBER* f_;
 
-	static void fiber_callback(ACL_FIBER *f, void *ctx);
+	static void fiber_callback(ACL_FIBER* f, void* ctx);
+};
+
+/**
+ * 可用作定时器的协程类
+ */
+class fiber_timer
+{
+public:
+	fiber_timer(void);
+	virtual ~fiber_timer(void) {}
+
+	/**
+	 * 启动一个协程定时器
+	 * @param milliseconds {unsigned int} 毫秒级时间
+	 * @param stack_size {size_t} 协程的栈空间大小
+	 */
+	void start(unsigned int milliseconds, size_t stack_size = 320000);
+
+protected:
+	/**
+	 * 子类必须实现该纯虚方法，当定时器启动时会回调该方法
+	 */
+	virtual void run(void) = 0;
+
+private:
+	ACL_FIBER* f_;
+
+	static void timer_callback(ACL_FIBER* f, void* ctx);
+};
+
+/**
+ * 定时器管理协程
+ */
+template <typename T>
+class fiber_trigger : public fiber
+{
+public:
+	fiber_trigger(timer_trigger<T>& timer)
+	: delay_(100)
+	, stop_(false)
+	, timer_(timer)
+	{
+	}
+
+	virtual ~fiber_trigger(void) {}
+
+	void add(T* o)
+	{
+		mbox_.push(o);
+	}
+
+	void del(T* o)
+	{
+		timer_.del(o);
+	}
+
+	timer_trigger<T>& get_trigger(void)
+	{
+		return timer_;
+	}
+
+	// @override
+	void run(void)
+	{
+		while (!stop_) {
+			T* o = mbox_.pop(delay_);
+			if (o)
+				timer_.add(o);
+
+			long long next = timer_.trigger();
+			long long curr = get_curr_stamp();
+			if (next == -1)
+				delay_ = 100;
+			else {
+				delay_ = next - curr;
+				if (delay_ <= 0)
+					delay_ = 1;
+			}
+		}
+	}
+
+private:
+	long long delay_;
+	bool stop_;
+
+	timer_trigger<T>& timer_;
+	mbox<T> mbox_;
 };
 
 } // namespace acl

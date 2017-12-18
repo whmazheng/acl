@@ -1,10 +1,11 @@
 #include "stdafx.h"
+#include <limits.h>
 #include "fiber/lib_fiber.h"
 #include "event.h"
 #include "fiber.h"
 
 typedef struct {
-	EVENT     *event;
+	EVENT      *event;
 	size_t      io_count;
 	ACL_FIBER  *ev_fiber;
 	ACL_RING    ev_timer;
@@ -47,8 +48,11 @@ static void thread_free(void *ctx)
 	if (__thread_fiber == NULL)
 		return;
 
-	if (tf->event)
+	if (tf->event) {
 		event_free(tf->event);
+		tf->event = NULL;
+	}
+
 	acl_myfree(tf);
 
 	if (__main_fiber == __thread_fiber)
@@ -131,9 +135,8 @@ void fiber_io_close(int fd)
 static void fiber_io_loop(ACL_FIBER *self acl_unused, void *ctx)
 {
 	EVENT *ev = (EVENT *) ctx;
-	int left;
 	ACL_FIBER *timer;
-	int now, last = 0;
+	acl_int64 now, last = 0, left;
 	struct timeval tv;
 
 	fiber_system();
@@ -153,16 +156,13 @@ static void fiber_io_loop(ACL_FIBER *self acl_unused, void *ctx)
 				left = timer->when - now;
 		}
 
-		/* add 1 just for the deviation of epoll_wait */
-		event_process(ev, left > 0 ? left + 1 : left);
+		assert(left < INT_MAX);
 
-		if (__thread_fiber->io_stop) {
-			if (__thread_fiber->io_count > 0)
-				acl_msg_info("%s(%d), %s: waiting io: %d",
-					__FILE__, __LINE__, __FUNCTION__,
-					(int) __thread_fiber->io_count);
+		/* add 1 just for the deviation of epoll_wait */
+		event_process(ev, left > 0 ? left + 1 : (int) left);
+
+		if (__thread_fiber->io_stop)
 			break;
-		}
 
 		if (timer == NULL)
 			continue;
@@ -183,7 +183,13 @@ static void fiber_io_loop(ACL_FIBER *self acl_unused, void *ctx)
 
 		} while (timer != NULL && now >= timer->when);
 	}
+
+	if (__thread_fiber->io_count > 0)
+		acl_msg_info("%s(%d), %s: waiting io: %d", __FILE__, __LINE__,
+			__FUNCTION__, (int) __thread_fiber->io_count);
 }
+
+#define CHECK_MIN
 
 unsigned int acl_fiber_delay(unsigned int milliseconds)
 {
@@ -195,6 +201,11 @@ unsigned int acl_fiber_delay(unsigned int milliseconds)
 #ifdef	CHECK_MIN
 	acl_int64 min = -1;
 #endif
+
+	if (!acl_var_hook_sys_api) {
+		acl_doze(milliseconds);
+		return 0;
+	}
 
 	fiber_io_check();
 
@@ -218,9 +229,9 @@ unsigned int acl_fiber_delay(unsigned int milliseconds)
 #ifdef	CHECK_MIN
 	if ((min >= 0 && min < ev->timeout) || ev->timeout < 0)
 		ev->timeout = (int) min;
+#else
+	ev->timeout = 10;
 #endif
-
-	ev->timeout = 1;
 
 	fiber = acl_fiber_running();
 	fiber->when = when;
@@ -237,6 +248,8 @@ unsigned int acl_fiber_delay(unsigned int milliseconds)
 
 	if (acl_ring_size(&__thread_fiber->ev_timer) == 0)
 		ev->timeout = -1;
+	else
+		ev->timeout = min;
 
 	SET_TIME(now);
 	if (now < when)
@@ -268,7 +281,7 @@ static void fiber_timer_callback(ACL_FIBER *fiber, void *ctx)
 	fiber_exit(0);
 }
 
-ACL_FIBER *acl_fiber_create_timer(unsigned int milliseconds,
+ACL_FIBER *acl_fiber_create_timer(unsigned int milliseconds, size_t size,
 	void (*fn)(ACL_FIBER *, void *), void *ctx)
 {
 	acl_int64 when;
@@ -280,7 +293,7 @@ ACL_FIBER *acl_fiber_create_timer(unsigned int milliseconds,
 	SET_TIME(when);
 	when += milliseconds;
 
-	fiber           = acl_fiber_create(fiber_timer_callback, ctx, 64000);
+	fiber           = acl_fiber_create(fiber_timer_callback, ctx, size);
 	fiber->when     = when;
 	fiber->timer_fn = fn;
 	return fiber;
@@ -362,4 +375,40 @@ void fiber_wait_write(int fd)
 	__thread_fiber->io_count++;
 
 	acl_fiber_switch();
+}
+
+void fiber_io_fibers_free()
+{
+	EVENT *ev = fiber_io_event();
+	int fd;
+	FILE_EVENT *fe;
+	ACL_FIBER  *fbr, *fbw;
+
+	for (fd = 0; fd < ev->maxfd; fd++) {
+		fbr = NULL;
+		fbw = NULL;
+		fe = &ev->events[fd];
+		if (fe->r_proc == read_callback
+			&& (fbr = (ACL_FIBER *) fe->r_ctx)) {
+
+			event_del_nodelay(ev, fd, EVENT_READABLE);
+			fe->r_proc = NULL;
+			fe->r_ctx  = NULL;
+		}
+		if (fe->w_proc == write_callback
+			&& (fbw = (ACL_FIBER *) fe->w_ctx)) {
+
+			event_del_nodelay(ev, fd, EVENT_WRITABLE);
+			fe->w_proc = NULL;
+			fe->w_ctx  = NULL;
+		}
+
+		if (fbr) {
+			acl_ring_detach(&fbr->me);
+			fiber_free(fbr);
+		} else if (fbw) {
+			acl_ring_detach(&fbw->me);
+			fiber_free(fbw);
+		}
+	}
 }

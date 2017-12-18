@@ -108,6 +108,12 @@ protected:
 	 */
 	void proc_on_exit();
 
+	/**
+	 * @override
+	 * 当进程收到 SIGHUP 信号后的回调函数
+	 */
+	bool proc_on_sighup(acl::string&);
+
 private:
 	// redis 集群对象
 	acl::redis_client_cluster* redis_;

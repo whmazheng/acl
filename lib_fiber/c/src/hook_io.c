@@ -6,8 +6,11 @@
 
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/sendfile.h>
 
+#ifndef __USE_GNU
 #define __USE_GNU
+#endif
 #include <dlfcn.h>
 #include <sys/stat.h>
 #include "fiber.h"
@@ -20,6 +23,10 @@ typedef int     (*pipe2_fn)(int pipefd[2], int flags);
 typedef FILE   *(*popen_fn)(const char *, const char *);
 typedef int     (*pclose_fn)(FILE *);
 typedef int     (*close_fn)(int);
+typedef int     (*stat_fn)(int, const char*, struct stat*);
+typedef int     (*lstat_fn)(int, const char*, struct stat*);
+typedef int     (*fstat_fn)(int, int, struct stat*);
+typedef int     (*mkdir_fn)(const char*, mode_t);
 typedef ssize_t (*read_fn)(int, void *, size_t);
 typedef ssize_t (*readv_fn)(int, const struct iovec *, int);
 typedef ssize_t (*recv_fn)(int, void *, size_t, int);
@@ -32,6 +39,16 @@ typedef ssize_t (*send_fn)(int, const void *, size_t, int);
 typedef ssize_t (*sendto_fn)(int, const void *, size_t, int,
 	const struct sockaddr *, socklen_t);
 typedef ssize_t (*sendmsg_fn)(int, const struct msghdr *, int);
+#ifndef __USE_FILE_OFFSET64
+typedef ssize_t (*sendfile_fn)(int, int, off_t*, size_t);
+#endif
+#ifdef  __USE_LARGEFILE64
+typedef ssize_t (*sendfile64_fn)(int, int, off64_t*, size_t);
+#endif
+typedef ssize_t (*pread_fn)(int, void *, size_t, off_t);
+typedef ssize_t (*pwrite_fn)(int, const void *, size_t, off_t);
+typedef ssize_t (*pread64_fn)(int, void *, size_t, off64_t);
+typedef ssize_t (*pwrite64_fn)(int, const void *, size_t, off64_t);
 
 static sleep_fn    __sys_sleep    = NULL;
 static pipe_fn     __sys_pipe     = NULL;
@@ -41,6 +58,10 @@ static pipe2_fn    __sys_pipe2    = NULL;
 static popen_fn    __sys_popen    = NULL;
 static pclose_fn   __sys_pclose   = NULL;
 static close_fn    __sys_close    = NULL;
+static stat_fn     __sys_stat     = NULL;
+static lstat_fn    __sys_lstat    = NULL;
+static fstat_fn    __sys_fstat    = NULL;
+static mkdir_fn    __sys_mkdir    = NULL;
 static read_fn     __sys_read     = NULL;
 static readv_fn    __sys_readv    = NULL;
 static recv_fn     __sys_recv     = NULL;
@@ -52,6 +73,18 @@ static writev_fn   __sys_writev   = NULL;
 static send_fn     __sys_send     = NULL;
 static sendto_fn   __sys_sendto   = NULL;
 static sendmsg_fn  __sys_sendmsg  = NULL;
+
+#ifndef __USE_FILE_OFFSET64
+static sendfile_fn   __sys_sendfile   = NULL;
+#endif
+#ifdef __USE_LARGEFILE64
+static sendfile64_fn __sys_sendfile64 = NULL;
+#endif
+
+static pread_fn      __sys_pread    = NULL;
+static pwrite_fn     __sys_pwrite   = NULL;
+static pread64_fn    __sys_pread64  = NULL;
+static pwrite64_fn   __sys_pwrite64 = NULL;
 
 void hook_io(void)
 {
@@ -67,55 +100,84 @@ void hook_io(void)
 
 	__called++;
 
-	__sys_sleep    = (sleep_fn) dlsym(RTLD_NEXT, "sleep");
+	__sys_sleep      = (sleep_fn) dlsym(RTLD_NEXT, "sleep");
 	acl_assert(__sys_sleep);
 
-	__sys_pipe     = (pipe_fn) dlsym(RTLD_NEXT, "pipe");
+	__sys_pipe       = (pipe_fn) dlsym(RTLD_NEXT, "pipe");
 	acl_assert(__sys_pipe);
 
 #ifdef HAS_PIPE2
-	__sys_pipe2    = (pipe2_fn) dlsym(RTLD_NEXT, "pipe2");
+	__sys_pipe2      = (pipe2_fn) dlsym(RTLD_NEXT, "pipe2");
 	acl_assert(__sys_pipe2);
 #endif
 
-	__sys_popen    = (popen_fn) dlsym(RTLD_NEXT, "popen");
+	__sys_popen      = (popen_fn) dlsym(RTLD_NEXT, "popen");
 	acl_assert(__sys_popen);
 
-	__sys_pclose   = (pclose_fn) dlsym(RTLD_NEXT, "pclose");
+	__sys_pclose     = (pclose_fn) dlsym(RTLD_NEXT, "pclose");
 	acl_assert(__sys_pclose);
 
-	__sys_close    = (close_fn) dlsym(RTLD_NEXT, "close");
+	__sys_close      = (close_fn) dlsym(RTLD_NEXT, "close");
 	acl_assert(__sys_close);
 
-	__sys_read     = (read_fn) dlsym(RTLD_NEXT, "read");
+	__sys_mkdir      = (mkdir_fn) dlsym(RTLD_NEXT, "mkdir");
+	acl_assert(__sys_mkdir);
+
+	__sys_stat       = (stat_fn) dlsym(RTLD_NEXT, "__xstat");
+	acl_assert(__sys_stat);
+
+	__sys_fstat      = (fstat_fn) dlsym(RTLD_NEXT, "__fxstat");
+	acl_assert(__sys_fstat);
+
+	__sys_read       = (read_fn) dlsym(RTLD_NEXT, "read");
 	acl_assert(__sys_read);
 
-	__sys_readv    = (readv_fn) dlsym(RTLD_NEXT, "readv");
+	__sys_readv      = (readv_fn) dlsym(RTLD_NEXT, "readv");
 	acl_assert(__sys_readv);
 
-	__sys_recv     = (recv_fn) dlsym(RTLD_NEXT, "recv");
+	__sys_recv       = (recv_fn) dlsym(RTLD_NEXT, "recv");
 	acl_assert(__sys_recv);
 
-	__sys_recvfrom = (recvfrom_fn) dlsym(RTLD_NEXT, "recvfrom");
+	__sys_recvfrom   = (recvfrom_fn) dlsym(RTLD_NEXT, "recvfrom");
 	acl_assert(__sys_recvfrom);
 
-	__sys_recvmsg  = (recvmsg_fn) dlsym(RTLD_NEXT, "recvmsg");
+	__sys_recvmsg    = (recvmsg_fn) dlsym(RTLD_NEXT, "recvmsg");
 	acl_assert(__sys_recvmsg);
 
-	__sys_write    = (write_fn) dlsym(RTLD_NEXT, "write");
+	__sys_write      = (write_fn) dlsym(RTLD_NEXT, "write");
 	acl_assert(__sys_write);
 
-	__sys_writev   = (writev_fn) dlsym(RTLD_NEXT, "writev");
+	__sys_writev     = (writev_fn) dlsym(RTLD_NEXT, "writev");
 	acl_assert(__sys_writev);
 
-	__sys_send     = (send_fn) dlsym(RTLD_NEXT, "send");
+	__sys_send       = (send_fn) dlsym(RTLD_NEXT, "send");
 	acl_assert(__sys_send);
 
-	__sys_sendto   = (sendto_fn) dlsym(RTLD_NEXT, "sendto");
+	__sys_sendto     = (sendto_fn) dlsym(RTLD_NEXT, "sendto");
 	acl_assert(__sys_sendto);
 
-	__sys_sendmsg  = (sendmsg_fn) dlsym(RTLD_NEXT, "sendmsg");
+	__sys_sendmsg    = (sendmsg_fn) dlsym(RTLD_NEXT, "sendmsg");
 	acl_assert(__sys_sendmsg);
+
+#ifndef __USE_FILE_OFFSET64
+	__sys_sendfile   = (sendfile_fn) dlsym(RTLD_NEXT, "sendfile");
+	acl_assert(__sys_sendfile);
+#endif
+
+#ifdef __USE_LARGEFILE64
+	__sys_sendfile64 = (sendfile64_fn) dlsym(RTLD_NEXT, "sendfile64");
+	acl_assert(__sys_sendfile64);
+#endif
+
+	__sys_pread = (pread_fn) dlsym(RTLD_NEXT, "pread");
+	acl_assert(__sys_pread);
+	__sys_pwrite = (pwrite_fn) dlsym(RTLD_NEXT, "pwrite");
+	acl_assert(__sys_pwrite);
+
+	__sys_pread64 = (pread64_fn) dlsym(RTLD_NEXT, "pread64");
+	acl_assert(__sys_pread64);
+	__sys_pwrite64 = (pwrite64_fn) dlsym(RTLD_NEXT, "pwrite64");
+	acl_assert(__sys_pwrite64);
 
 	(void) acl_pthread_mutex_unlock(&__lock);
 }
@@ -183,6 +245,62 @@ FILE *popen(const char *command, const char *type)
 	if (fp == NULL)
 		fiber_save_errno();
 	return fp;
+}
+
+int mkdir(const char *pathname, mode_t mode)
+{
+	if (__sys_mkdir == NULL)
+		hook_io();
+
+	if (!acl_var_hook_sys_api)
+		return __sys_mkdir ? __sys_mkdir(pathname, mode) : -1;
+
+	if (__sys_mkdir(pathname, mode) == 0)
+		return 0;
+	fiber_save_errno();
+	return -1;
+}
+
+int __xstat(int ver, const char *path, struct stat *buf)
+{
+	if (__sys_stat == NULL)
+		hook_io();
+
+	if (!acl_var_hook_sys_api)
+		return __sys_stat ? __sys_stat(ver, path, buf) : -1;
+
+	if (__sys_stat(ver, path, buf) == 0)
+		return 0;
+	fiber_save_errno();
+	return -1;
+}
+
+int __lxstat(int ver, const char *path, struct stat *buf)
+{
+	if (__sys_lstat == NULL)
+		hook_io();
+
+	if (!acl_var_hook_sys_api)
+		return __sys_lstat ? __sys_lstat(ver, path, buf) : -1;
+
+	if (__sys_lstat(ver, path, buf) == 0)
+		return 0;
+	fiber_save_errno();
+	return -1;
+}
+
+int __fxstat(int ver, int fd, struct stat *buf)
+{
+	if (__sys_fstat == NULL)
+		hook_io();
+
+	if (!acl_var_hook_sys_api)
+		return __sys_fstat ? __sys_fstat(ver, fd, buf) : -1;
+
+	if (__sys_fstat(ver, fd, buf) == 0)
+		return 0;
+	fiber_save_errno();
+	return -1;
 }
 
 int close(int fd)
@@ -968,4 +1086,115 @@ ssize_t sendmsg(int sockfd, const struct msghdr *msg, int flags)
 }
 
 #endif
+
 /****************************************************************************/
+
+#ifndef __USE_FILE_OFFSET64
+ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count)
+{
+	int ret;
+
+	if (__sys_sendfile == NULL)
+		hook_io();
+	if (!acl_var_hook_sys_api) 
+		return __sys_sendfile(out_fd, in_fd, offset, count);
+	ret = __sys_sendfile(out_fd, in_fd, offset, count);
+	if (ret < 0)
+		fiber_save_errno();
+	return ret;
+
+}
+#endif
+
+#ifdef  __USE_LARGEFILE64
+ssize_t sendfile64(int out_fd, int in_fd, off64_t *offset, size_t count)
+{
+	ACL_FIBER *me;
+
+	if (__sys_sendfile64 == NULL)
+		hook_io();
+
+	while (1) {
+		ssize_t n = __sys_sendfile64(out_fd, in_fd, offset, count);
+		if (!acl_var_hook_sys_api || n >= 0)
+			return n;
+
+		fiber_save_errno();
+
+#if EAGAIN == EWOULDBLOCK
+		if (errno != EAGAIN)
+#else
+		if (errno != EAGAIN && errno != EWOULDBLOCK)
+#endif
+			return -1;
+
+		fiber_wait_write(out_fd);
+
+		me = acl_fiber_running();
+		if (acl_fiber_killed(me)) {
+			acl_msg_info("%s(%d), %s: fiber-%u is existing",
+				__FILE__, __LINE__, __FUNCTION__,
+				acl_fiber_id(me));
+			return -1;
+		}
+	}
+}
+#endif
+
+#if defined __USE_UNIX98 || defined __USE_XOPEN2K8
+# ifndef __USE_FILE_OFFSET64
+ssize_t pread(int fd, void *buf, size_t count, off_t offset)
+{
+	ssize_t ret;
+
+	if (__sys_pread == NULL)
+		hook_io();
+
+	ret =  __sys_pread(fd, buf, count, offset);
+	if (acl_var_hook_sys_api && ret < 0) 
+		fiber_save_errno();
+	return ret;
+}
+
+ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset)
+{
+	ssize_t ret;
+
+	if (__sys_pwrite == NULL)
+		hook_io();
+
+	ret = __sys_pwrite(fd, buf, count, offset);
+	if (acl_var_hook_sys_api && ret < 0) 
+		fiber_save_errno();
+	return ret;
+}
+# endif
+
+# ifdef __USE_LARGEFILE64
+ssize_t pread64(int fd, void *buf, size_t count, off64_t offset)
+{
+	ssize_t ret;
+
+	if (__sys_pread64 == NULL)
+		hook_io();
+
+	ret =  __sys_pread64(fd, buf, count, offset);
+	if (acl_var_hook_sys_api && ret < 0) 
+		fiber_save_errno();
+	return ret;
+}
+
+ssize_t pwrite64(int fd, const void *buf, size_t count, off64_t offset)
+{
+	ssize_t ret;
+
+	if (__sys_pwrite == NULL)
+		hook_io();
+
+	ret = __sys_pwrite64(fd, buf, count, offset);
+	if (acl_var_hook_sys_api && ret < 0) 
+		fiber_save_errno();
+	return ret;
+}
+# endif
+#endif

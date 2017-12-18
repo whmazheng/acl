@@ -1,4 +1,6 @@
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #include "stdafx.h"
 #include <dlfcn.h>
 #include <poll.h>
@@ -396,7 +398,51 @@ int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
     (x) = ((acl_int64) tv.tv_sec) * 1000 + ((acl_int64) tv.tv_usec)/ 1000; \
 } while (0)
 
+#define TO_APPL acl_ring_to_appl
+
 /****************************************************************************/
+
+static void poll_events_del(EVENT *ev, POLL_EVENT *pe)
+{
+	int i;
+
+	for (i = 0; i < pe->nfds; i++) {
+		if (pe->fds[i].events & POLLIN) {
+			event_del_nodelay(ev, pe->fds[i].fd, EVENT_READABLE);
+			ev->events[pe->fds[i].fd].pe = NULL;
+		}
+
+		if (pe->fds[i].events & POLLOUT) {
+			event_del_nodelay(ev, pe->fds[i].fd, EVENT_WRITABLE);
+			ev->events[pe->fds[i].fd].pe = NULL;
+		}
+	}
+}
+
+void poll_fibers_free(void)
+{
+	EVENT *ev = fiber_io_event();
+
+#ifdef	USE_RING
+	ACL_RING *head;
+
+	while ((head = acl_ring_pop_head(&ev->poll_list))) {
+		POLL_EVENT *pe = TO_APPL(head, POLL_EVENT, me);
+#elif	defined(USE_STACK)
+	while (1) {
+		POLL_EVENT *pe = acl_stack_pop(ev->poll_list);
+		if (pe == NULL)
+			break;
+#else
+	while (1) {
+		POLL_EVENT *pe = acl_fifo_pop(ev->poll_list);
+		if (pe == NULL)
+			break;
+#endif
+		poll_events_del(ev, pe);
+		fiber_free(pe->fiber);
+	}
+}
 
 static void pollfd_callback(EVENT *ev, int fd, void *ctx, int mask)
 {
@@ -419,6 +465,10 @@ static void pollfd_callback(EVENT *ev, int fd, void *ctx, int mask)
 		n |= 1 << 1;
 	}
 
+#ifdef	USE_RING
+	assert(acl_ring_size(&ev->poll_list) > 0);
+#endif
+
 	if (n > 0) {
 		acl_assert(pe);
 		pe->nready++;
@@ -429,7 +479,14 @@ static void event_poll_set(EVENT *ev, POLL_EVENT *pe, int timeout)
 {
 	int i;
 
+#ifdef	USE_RING
 	acl_ring_prepend(&ev->poll_list, &pe->me);
+#elif	defined(USE_STACK)
+	acl_stack_append(ev->poll_list, pe);
+#else
+	acl_fifo_push_back(ev->poll_list, pe);
+#endif
+
 	pe->nready = 0;
 
 	for (i = 0; i < pe->nfds; i++) {
@@ -496,8 +553,6 @@ int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 	if (!acl_var_hook_sys_api)
 		return __sys_poll ? __sys_poll(fds, nfds, timeout) : -1;
 
-	fiber_io_check();
-
 	ev        = fiber_io_event();
 	pe.fds    = fds;
 	pe.nfds   = nfds;
@@ -521,7 +576,13 @@ int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 			break;
 		}
 
+#ifdef	USE_RING
 		if (acl_ring_size(&ev->poll_list) == 0)
+#elif	defined(USE_STACK)
+		if (acl_stack_size(ev->poll_list) == 0)
+#else
+		if (acl_fifo_size(ev->poll_list) == 0)
+#endif
 			ev->timeout = -1;
 
 		if (pe.nready != 0 || timeout == 0)
@@ -608,6 +669,50 @@ int select(int nfds, fd_set *readfds, fd_set *writefds,
 }
 
 /****************************************************************************/
+
+static void epoll_events_del(EVENT *ev, EPOLL_EVENT *ee)
+{
+	size_t i;
+	int mask;
+
+	for (i = 0; i < ee->nfds; i++) {
+		if (ee->fds[i] == NULL)
+			continue;
+
+		mask = ee->fds[i]->mask;
+		if (mask & EVENT_READABLE)
+			event_del_nodelay(ev, ee->fds[i]->fd, EVENT_READABLE);
+		if (mask & EVENT_WRITABLE)
+			event_del_nodelay(ev, ee->fds[i]->fd, EVENT_WRITABLE);
+		acl_myfree(ee->fds[i]);
+		ee->fds[i] = NULL;
+	}
+}
+
+void epoll_fibers_free(void)
+{
+	EVENT *ev = fiber_io_event();
+
+#ifdef	USE_RING
+	ACL_RING *head;
+
+	while ((head = acl_ring_pop_head(&ev->epoll_list))) {
+		EPOLL_EVENT *ee = TO_APPL(head, EPOLL_EVENT, me);
+#elif	defined(USE_STACK)
+	while (1) {
+		EPOLL_EVENT *ee = acl_stack_pop(ev->epoll_list);
+		if (ee == NULL)
+			break;
+#else
+	while (1) {
+		EPOLL_EVENT *ee = acl_fifo_pop(ev->epoll_list);
+		if (ee == NULL)
+			break;
+#endif
+		epoll_events_del(ev, ee);
+		fiber_free(ee->fiber);
+	}
+}
 
 static EPOLL_EVENT *epfd_alloc(void)
 {
@@ -776,7 +881,6 @@ int epoll_create(int size acl_unused)
 	if (!acl_var_hook_sys_api)
 		return __sys_epoll_create ? __sys_epoll_create(size) : -1;
 
-	fiber_io_check();
 	ev = fiber_io_event();
 	if (ev == NULL) {
 		acl_msg_error("%s(%d), %s: create_event failed %s",
@@ -795,6 +899,18 @@ int epoll_create(int size acl_unused)
 	ee = epoll_event_create(epfd);
 	return ee->epfd;
 }
+
+#ifdef EPOLL_CLOEXEC
+int epoll_create1(int flags)
+{
+	int epfd = epoll_create(100);
+	if (epfd == -1)
+		return -1;
+	if (flags & EPOLL_CLOEXEC)
+		(void) acl_close_on_exec(epfd, 1);
+	return epfd;
+}
+#endif
 
 static void epfd_callback(EVENT *ev acl_unused, int fd, void *ctx, int mask)
 {
@@ -912,7 +1028,14 @@ static void epoll_callback(EVENT *ev acl_unused, EPOLL_EVENT *ee)
 
 static void event_epoll_set(EVENT *ev, EPOLL_EVENT *ee, int timeout)
 {
+#ifdef	USE_RING
 	acl_ring_prepend(&ev->epoll_list, &ee->me);
+#elif	defined(USE_STACK)
+	acl_stack_append(ev->epoll_list, ee);
+#else
+	acl_fifo_push_back(ev->epoll_list, ee);
+#endif
+
 	ee->nready = 0;
 
 	if (timeout >= 0 && (ev->timeout < 0 || timeout < ev->timeout))

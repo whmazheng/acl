@@ -10,7 +10,7 @@
  */
 
 #pragma once
-#include "acl_cpp/acl_cpp_define.hpp"
+#include "../acl_cpp_define.hpp"
 #include <list>
 #include <map>
 #include <vector>
@@ -55,6 +55,7 @@ private:
 			e_list,
 			e_vector,
 			e_map,
+			e_set,
 			e_object,
 		};
 
@@ -104,8 +105,8 @@ private:
 	std::string get_node_func (const field_t &field);
 	std::string get_gson_func_laber (const field_t &field);
 	function_code_t gen_pack_code (const object_t &obj);
-	std::string get_unpack_code(const std::string &obj_name,
-			const field_t &field);
+	std::string get_unpack_code(const std::string &obj_name, 
+		const field_t &field)const ;
 	std::string get_node_name(const std::string &name);
 	std::string next_token(std::string delimiters);
 	std::string get_namespace();
@@ -116,6 +117,7 @@ private:
 
 	bool skip_space_comment();
 
+	bool check_use_namespace();
 	bool check_namespace();
 	bool check_namespace_end();
 	bool check_struct_begin ();
@@ -135,7 +137,7 @@ private:
 	bool check_define();
 	bool check_pragma();
 	std::list<std::string> get_initializelist ();
-	char cc;
+	//char cc;
 	int pos_;
 	int max_pos_;
 	std::string comment_begin_;

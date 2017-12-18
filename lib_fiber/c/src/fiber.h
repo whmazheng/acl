@@ -23,7 +23,20 @@ typedef struct {
 	void (*free_fn)(void *);
 } FIBER_LOCAL;
 
+typedef struct FIBER_BASE {
+#define	FBASE_F_BASE	(1 << 0)
+#define FBASE_F_FIBER	(1 << 1)
+	unsigned flag;
+
+	ACL_ATOMIC *atomic;
+	long long   atomic_value;
+	int      mutex_in;
+	int      mutex_out;
+	ACL_RING mutex_waiter;
+} FIBER_BASE;
+
 struct ACL_FIBER {
+	FIBER_BASE     base;
 #ifdef USE_VALGRIND
 	unsigned int   vid;
 #endif
@@ -36,6 +49,10 @@ struct ACL_FIBER {
 	int            sys;
 	int            signum;
 	unsigned int   flag;
+
+	ACL_RING         holding;
+	ACL_FIBER_MUTEX *waiting;
+
 #define FIBER_F_SAVE_ERRNO	(unsigned) 1 << 0
 #define	FIBER_F_KILLED		(unsigned) 1 << 1
 
@@ -57,67 +74,16 @@ struct ACL_FIBER {
 	char          *buff;
 };
 
-/*
- * channel communication
- */
-enum
-{
-	CHANEND,
-	CHANSND,
-	CHANRCV,
-	CHANNOP,
-	CHANNOBLK,
-};
-
-typedef struct FIBER_ALT FIBER_ALT;
-typedef struct FIBER_ALT_ARRAY FIBER_ALT_ARRAY;
-
-struct FIBER_ALT {
-	ACL_CHANNEL   *c;
-	void          *v;
-	unsigned int   op;
-	ACL_FIBER     *fiber;
-	FIBER_ALT     *xalt;
-};
-
-struct FIBER_ALT_ARRAY {
-	FIBER_ALT  **a;
-	unsigned int n;
-	unsigned int m;
-};
-
-struct ACL_CHANNEL {
-	unsigned int    bufsize;
-	unsigned int    elemsize;
-	unsigned char  *buf;
-	unsigned int    nbuf;
-	unsigned int    off;
-	FIBER_ALT_ARRAY asend;
-	FIBER_ALT_ARRAY arecv;
-	char           *name;
-};
-
-struct ACL_FIBER_MUTEX {
-	ACL_FIBER *owner;
-	ACL_RING   waiting;
-};
-
-struct ACL_FIBER_RWLOCK {
-	int        readers;
-	ACL_FIBER *writer;
-	ACL_RING   rwaiting;
-	ACL_RING   wwaiting;
-};
-
-struct ACL_FIBER_SEM {
-	int num;
-	ACL_RING waiting;
-	acl_pthread_t tid;
-};
-
 /* in fiber.c */
 extern __thread int acl_var_hook_sys_api;
+FIBER_BASE *fbase_alloc(void);
+void fbase_free(FIBER_BASE *fbase);
 void fiber_free(ACL_FIBER *fiber);
+
+/* in fiber_event.c */
+int fbase_event_wait(FIBER_BASE *fbase);
+int fbase_event_wakeup(FIBER_BASE *fbase);
+void fbase_event_close(FIBER_BASE *fbase);
 
 /* in fiber_schedule.c */
 void fiber_save_errno(void);
@@ -134,6 +100,7 @@ void fiber_wait_write(int fd);
 void fiber_io_dec(void);
 void fiber_io_inc(void);
 EVENT *fiber_io_event(void);
+void fiber_io_fibers_free(void);
 
 /* in hook_io.c */
 void hook_io(void);
@@ -141,5 +108,7 @@ void hook_io(void);
 /* in fiber_net.c */
 void hook_net(void);
 int  epoll_event_close(int epfd);
+void poll_fibers_free(void);
+void epoll_fibers_free(void);
 
 #endif

@@ -1,6 +1,135 @@
 修改历史列表：
 
 ------------------------------------------------------------------------
+616) 2017.12.12
+616.1) feature: acl_mbox.c 支持采用 eventfd 句柄进行 IO 通知
+616.2) bugfix: acl_ifconf_search 配置地址时有误
+
+615) 2017.12.10
+615.1) feature: acl_udp_server.c 支持绑定 UNIX 域套接口
+615.2) feature: net 中的 udp 模块支持绑定 UNIX 域套接口传输数据
+
+614) 2017.11.21
+614.1) feature: acl_argv.c 增加 acl_argv_set 用于替换指定下标位置的值
+
+613) 2017.11.10
+613.1) bugfix: acl_mylog.c 当 fork 子进程时，可能会造成死锁问题
+
+612) 2017.11.9
+612.1) feature: acl_udp_server.c 支持 IP 地址自动发现功能，即当网卡地址发生
+变化时，会自动添加或删除监听的地址
+
+611) 2017.9.28
+611.1) bugfix: acl_mbox.c 中的流对象替换成系统的 fd 句柄
+
+610) 2017.9.21
+610.1) bugfix: acl_events.c 中 event_init 函数 eventp->timer_keep 为函数指针，
+不应设为 0，否则会引起 acl_event_keep_timer 函数崩溃
+610.2) workaround: events 模块中的所有定时器重构，代码结构更加清晰
+610.3) workaround: events 中的定时器触发过程抽象成独立的函数模块
+
+609) 2017.9.19
+609.1) bugfix: acl_udp_server.c 当收到 SIGHUP 信号后通过管道反馈给 acl_master
+时，所传递的进程号有误
+
+608) 2017.9.13
+608.1) bugfix: acl_dlink.c 二分块算法当添加两个连续的数据块时，应该进行合并
+608.2) feature: acl_dlink.c 二分块算法支持添加负整数
+
+607) 2017.9.6
+607.1) bugfix: acl_mylog.c 内部的线程锁采用递归锁，否则，当记日志时收到信号再
+记日志时会造成死锁
+
+606) 2017.9.5
+606.1) feature: master 服务器模板支持收到 SIGTERM 信号后的后续处理过程
+
+605) 2017.8.29
+605.1) feature: acl_mbox.c 中的 acl_mbox_read 函数读超时单位由秒级调整为毫秒级
+605.2) bugfix: acl_aqueue.c 中的 acl_aqueue_pop_timedwait 函数计算超时时间方式有误
+
+604) 2017.8.15
+604.1) feature: 开放 acl_read_xxx_wait 接口，以允许毫秒级读超时等待
+
+603) 2017.8.11
+603.1) stable: acl_chroot_uid 内部如果出错则不会自动崩溃，给是返回 -1 通知上层
+
+602) 2017.8.10
+602.1) rename: acl_sane_bind 改名为 acl_inet_bind
+602.2) feature: acl_inet_listen/acl_inet_bind/acl_vstream_listen_ex 增 flag 标志位
+602.3) feature: master 服务器框架及服务器模板增加配置项 master_reuseport 及
+master_nonblock，master_fastopen 以允许用户可以通过配置文件来设置监听方式
+
+601) 2017.8.7
+601.1) safety & feature: 当使用 ACL_VSTRING 对象中的 printf 等方法时，如果传入
+了空指针，则内部自动处理成 "(null)" 以免程序崩溃
+
+600) 2017.7.31
+600.1) bugfix: acl_host_port.c->host_port 在 windows 平台下的解析有误
+600.2) bugfix: acl_aio_server.c/acl_threads_server.c 在 windows 下有误
+600.3) bugfix: acl_threads_server.c 中 thread_callback 在调用回调函数
+serv_timeout 时的参数顺序是错误的。
+
+599) 2017.7.22
+599.1) feature: acl_udp_server.c/acl_threads_server.c/acl_aio_server.c,
+acl_single_server.c/acl_trigger_server.c，增加方法用于获得当前服务的配置文件路径
+
+598) 2017.7.10
+598.1) feature: master/template/acl_udp_server.c 增加配置项，允许创建的线程为
+非“分离”模式
+
+597) 2017.7.4
+597.1) feature: master/template 下所有服务器模板支持获得 SIGHUP 信号后的回调过程
+597.2) 重构 master/template 下所有服务器模板
+
+596) 2017.7.3
+596.1) bugfix: acl_atomic_int64_fetch_add/acl_atomic_int64_add_fetch 实现有问题
+
+595) 2017.6.26
+595.1) feature: event_kernel.c 中的函数 event_new_kernel 增加 acl_close_on_exec
+控制，防止子进程继承 epoll/devpoll/kqueue 句柄
+
+594) 2017.6.21
+594.1) feature: 增加 acl_sane_bind.c 文件，将地址绑定操作形成单独的方法
+594.2) feature: 增加 acl_host_addrinfo 方法，支持通用的域名解析
+594.3) feature: acl_udp_server.c 支持 daemon 及 alone 两种运行模式
+
+593) 2017.6.20
+593.1) feature: acl_udp_server.c 支持绑定模糊匹配的地址
+
+592) 2017.6.11
+592.1) bugfix: acl_master 当 master_prefork > 0 时，若停止一个服务模块或将该
+服务模块的监听地址改变后 reload acl_master 则 acl_master 会产生崩溃，该问题
+已经修复
+
+591) 2017.6.8
+591.1) feature: acl_master 服务器框架允许启动时没有应用服务程序，以便于用户
+动态添加
+
+590) 2017.6.4
+590.1) feature: ACL_TOKEN 对象增加针对 acl_foreach 的支持，可以遍历所有的关键词
+
+589) 2017.6.3
+589.1) feature: acl_token_tree.c 增加 acl_token_tree_word_remove 方法
+
+588) 2017.6.2
+588.1) feature: acl_master 支持 UDP 方式下的 SO_REUSEPORT
+
+587) 2017.5.25
+587.1) bugfix: acl_pthread.c 中 acl_pthread_setspecific 存在 bug
+
+586) 2017.5.24
+586.1) performance: acl_udp_server.c 优化处理性能
+
+585) 2017.5.22
+585.1) feature: acl_master 服务器框架支持在 fork 子进程后, execvp 应用程序前
+切换子进程运行身份，此功能将帮助使用 go 语言编写的应用服务切换运行身份。
+Linux 平台下，使用 go 语言编写的程序如果在启动时如果为 root 身份，则因为 go
+预启动了几个后台线程以及 setuid 在 Linux 平台下仅切换当前线程的运行环境，则
+会导致其它线程无法切换运行身份的问题，go 作者说这是 Linux 系统的问题 :)
+
+584) 2017.5.3
+584.1) bugfix: acl_mylog.c/private_stream.c 中的内存存在非法释放
+
 583) 2017.4.23
 583.1) feature: add inet_ntop/inet_pton for vc2003
 

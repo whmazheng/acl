@@ -201,7 +201,8 @@ void connect_manager::remove(const char* addr)
 		{
 			(*it)->set_delay_destroy();
 			pools_.erase(it);
-			break;
+			lock_.unlock();
+			return;
 		}
 	}
 	if (it == pools_.end())
@@ -236,7 +237,7 @@ connect_pool* connect_manager::get(const char* addr,
 	if (exclusive)
 		lock_.unlock();
 
-	logger_error("no connect pool for addr %s", addr);
+	logger("no connect pool for addr %s", addr);
 	return NULL;
 }
 

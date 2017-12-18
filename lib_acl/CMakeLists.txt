@@ -17,6 +17,8 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	set(UNIX_OS true)
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 	set(UNIX_OS true)
+elseif (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
+	set(UNIX_OS true)
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	set(WIN_OS true)
 else()
@@ -55,8 +57,6 @@ set(sources
 	${src}/ioctl
 	${src}/json
 	${src}/master
-	${src}/master/framework
-	${src}/master/framework/trigger
 	${src}/master/template
 	${src}/msg
 	${src}/net
@@ -84,6 +84,7 @@ endif()
 if (${UNIX_OS})
 	add_definitions(
 		"-W"
+		"-O2"
 		"-fPIC"
 		"-Wall"
 		"-Werror"
@@ -98,9 +99,12 @@ if (${UNIX_OS})
 		"-Wuninitialized"
 		"-D_POSIX_PTHREAD_SEMANTICS"
 		"-DACL_PREPARE_COMPILE"
-		"-Wno-invalid-source-encoding"
 		"-Wstrict-prototypes"
 	)
+
+	if (!CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
+		add_definitions("-Wno-invalid-source-encoding")
+	endif()
 
 	if (CMAKE_BUILD_TYPE STREQUAL "RELEASE")
 		add_definitions("-O3")
@@ -116,6 +120,7 @@ endif()
 
 if (CMAKE_SYSTEM_NAME MATCHES "Android")
 	set(CMAKE_SHARED_LINKER_FLAGS "-shared")
+	add_definitions("-Wno-invalid-source-encoding")
 else()
 	set(lib_output_path ${PROJECT_BINARY_DIR}/lib)
 

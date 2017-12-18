@@ -9,7 +9,7 @@ RANLIB  = ${ENV_RANLIB}
 FLAGS   = ${ENV_FLAGS}
 
 CFLAGS = -c -g -W \
--O3 \
+-O \
 -fPIC \
 -Wall \
 -Werror \
@@ -53,6 +53,16 @@ endif
 ifeq ($(findstring clang++, $(CC)), clang++)
 	CFLAGS += -Wno-invalid-source-encoding \
 		  -Wno-extended-offsetof
+endif
+
+ifeq ($(findstring g++, $(CC)), g++)
+	GCC_VERSION:=$(shell echo `gcc --version|grep ^gcc|cut -d' ' -f3`)
+	GCC_MAJOR:=$(shell echo "$(GCC_VERSION)" | cut -d'.' -f1)
+	GCC_MINOR:=$(shell echo "$(GCC_VERSION)" | cut -d'.' -f2)
+	GCC_VER:=$(shell [ $(GCC_MAJOR) -gt 4 -o \( $(GCC_MAJOR) -eq 4 -a $(GCC_MINOR) -ge 7 \) ] && echo true)
+	ifeq ($(GCC_VER), true)
+		CFLAGS += -std=c++11 -DACL_USE_CPP11
+	endif
 endif
 
 # For FreeBSD
@@ -197,7 +207,7 @@ $(OBJ_PATH_DST)/%.o: ./src/%.cpp
 $(DEF_PATH_DST)/%.inc: ./src/%.cpp
 	$(CREATE_DEF)
 
-clean:
+clean cl:
 	rm -f $(LIB_PATH_DST)/${STATIC_LIBNAME}
 	rm -f $(LIB_PATH_DST)/${SHARED_LIBNAME}
 	rm -f $(LIB_PATH_DST)/${STATIC_OLD_LIBNAME}

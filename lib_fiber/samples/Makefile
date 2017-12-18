@@ -33,12 +33,14 @@ all:
 #	@(cd https_server; make)
 	@(cd mysql; make)
 	@(cd fiber_local; make)
+	@(cd tcp_server; make)
+	@(cd tcp_client; make)
 
 cl clean:
 	@(cd dns; make clean)
 	@(cd getaddrinfo; make clean)
 	@(cd fiber; make clean)
-	@(cd fiber sem; make clean)
+	@(cd fiber_sem; make clean)
 	@(cd read; make clean)
 	@(cd httpd; make clean)
 	@(cd httpd2; make clean)
@@ -68,5 +70,7 @@ cl clean:
 	@(cd https_server; make clean)
 	@(cd mysql; make clean)
 	@(cd fiber_local; make clean)
+	@(cd tcp_server; make clean)
+	@(cd tcp_client; make clean)
 
 rebuild rb: clean all

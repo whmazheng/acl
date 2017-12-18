@@ -12,7 +12,7 @@
 #include "acl_cpp/stream/polarssl_conf.hpp"
 #include "acl_cpp/http/http_client.hpp"
 
-static acl::polarssl_conf __ssl_conf;
+static acl::polarssl_conf* __ssl_conf;
 
 static bool test(const char* addr, int k, int nloop)
 {
@@ -23,7 +23,7 @@ static bool test(const char* addr, int k, int nloop)
 		return false;
 	}
 
-	acl::polarssl_io* ssl = new acl::polarssl_io(__ssl_conf, false);
+	acl::polarssl_io* ssl = new acl::polarssl_io(*__ssl_conf, false);
 	if (client.setup_hook(ssl) == ssl)
 	{
 		std::cout << "open ssl " << addr << " error!" << std::endl;
@@ -68,6 +68,7 @@ static bool test(const char* addr, int k, int nloop)
 static void usage(const char* procname)
 {
 	printf("usage: %s -h[help]\r\n"
+		" -d path_to_polarssl\r\n"
 		"-s server_addr[default: 127.0.0.1:9001]\r\n"
 		"-c max_connections[default: 10]\r\n"
 		"-n max_loop_per_connection[default: 10]\r\n", procname);
@@ -76,17 +77,20 @@ static void usage(const char* procname)
 int main(int argc, char* argv[])
 {
 	int   ch, max_loop = 10, max_connections = 10;
-	acl::string addr("127.0.0.1:9001");
+	acl::string addr("127.0.0.1:9001"), libpath("../libpolarssl.so");
 
 	acl::acl_cpp_init();
 
-	while ((ch = getopt(argc, argv, "hs:n:c:")) > 0)
+	while ((ch = getopt(argc, argv, "hd:s:n:c:")) > 0)
 	{
 		switch (ch)
 		{
 		case 'h':
 			usage(argv[0]);
 			return 0;
+		case 'd':
+			libpath = optarg;
+			break;
 		case 's':
 			addr = optarg;
 			break;
@@ -101,6 +105,10 @@ int main(int argc, char* argv[])
 		}
 	}
 
+	acl::polarssl_conf::set_libpath(libpath);
+	acl::polarssl_conf::load();
+	__ssl_conf = new acl::polarssl_conf;
+
 	if (max_connections <= 0)
 		max_connections = 100;
 
@@ -112,5 +120,7 @@ int main(int argc, char* argv[])
 
 	printf("Over, enter any key to exit!\n");
 	getchar();
+	delete __ssl_conf;
+
 	return (0);
 }

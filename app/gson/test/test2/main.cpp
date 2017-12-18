@@ -6,7 +6,7 @@
 #include <iostream>
 #include <time.h>
 #include "struct.h"
-#include "gson.h"
+#include "struct.gson.h"
 
 static void print_user(const user& u)
 {
@@ -107,5 +107,6 @@ int main(int argc, char* argv[])
 	}
 
 	test();
+	printf("Enter any key to continue ..."); fflush(stdout); getchar();
 	return 0;
 }

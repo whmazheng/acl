@@ -32,6 +32,8 @@ CFLAGS = -c -g -W \
 -D_POSIX_PTHREAD_SEMANTICS \
 -DACL_PREPARE_COMPILE \
 -Winvalid-pch \
+-DUSE_REUSEPORT \
+#-fstack-protector-all \
 #-DDEBUG_MEM
 #-DUSE_EPOLL \
 #-Wno-tautological-compare \
@@ -66,6 +68,14 @@ endif
 
 ifeq ($(findstring gcc, $(CC)), gcc)
 	CFLAGS += -Wstrict-prototypes
+	GCC_VERSION=$(shell gcc --version | grep ^gcc | sed 's/^.* //g')
+	GCC_MAJOR:=$(shell echo "$(GCC_VERSION)" | cut -d'.' -f1)
+	GCC_MINOR:=$(shell echo "$(GCC_VERSION)" | cut -d'.' -f2)
+	GCC_SUB:=$(shell echo "$(GCC_VERSION)" | cut -d'.' -f3)
+	GCC_VER:=$(shell [ $(GCC_MAJOR) -gt 4 -o \( $(GCC_MAJOR) -eq 4 -a $(GCC_MINOR) -gt 4 \) ] && echo true)
+	ifeq ($(GCC_VER), true)
+		CFLAGS += -Wno-implicit-fallthrough
+	endif
 endif
 
 ifeq ($(findstring clang, $(CC)), clang)
@@ -136,10 +146,10 @@ endif
 
 # For SunOS
 ifeq ($(findstring SunOS, $(UNIXNAME)), SunOS)
-	ifeq ($(findstring 86, $(UNIXNAME)), 86)
+	ifeq ($(findstring 86, $(OSTYPE)), 86)
 		SYSLIB += -lsocket -lnsl -lrt
 	endif
-	ifeq ($(findstring sun4u, $(UNIXNAME)), sun4u)
+	ifeq ($(findstring sun4u, $(OSTYPE)), sun4u)
 		SYSLIB += -lsocket -lnsl -lrt
 	endif
 	CFLAGS += -DSUNOS5 -fPIC -Werror
@@ -211,8 +221,6 @@ DB_SRC       = $(wildcard $(SRC_PATH_SRC)/db/*.c) \
 		$(wildcard $(SRC_PATH_SRC)/db/zdb/*.c)
 CODE_SRC     = $(wildcard $(SRC_PATH_SRC)/code/*.c) 
 MASTER_SRC   = $(wildcard $(SRC_PATH_SRC)/master/*.c) \
-		$(wildcard $(SRC_PATH_SRC)/master/framework/*.c) \
-		$(wildcard $(SRC_PATH_SRC)/master/framework/trigger/*.c) \
 		$(wildcard $(SRC_PATH_SRC)/master/template/*.c)
 PROCTL_SRC   = $(wildcard $(SRC_PATH_SRC)/proctl/*.c)
 XML_SRC      = $(wildcard $(SRC_PATH_SRC)/xml/*.c)
@@ -277,22 +285,22 @@ OBJS_DEF     = $(INIT_DEF) $(PRIV_DEF) $(STDLIB_DEF) \
 		$(JSON_DEF) $(UTEST_DEF)
 
 ###########################################################
-.PHONY = all static shared acl_master clean clean_lib clean_master rebuild
+.PHONY = all static shared clean cl clean_lib rebuild rb
 
 STATIC_OLD_LIBNAME = lib_acl.a
 SHARED_OLD_LIBNAME = lib_acl.so
 STATIC_LIBNAME = libacl.a
 SHARED_LIBNAME = libacl.so
 
-all: static shared acl_master
+all: static shared
 
 $(shell mkdir -p $(DEF_PATH_DST))
-ifneq ($(MAKECMDGOALS),clean)
--include $(OBJS_DEF)
-endif
+#ifneq ($(MAKECMDGOALS),clean)
+#-include $(OBJS_DEF)
+#endif
 
-clean: clean_lib clean_master
-rebuild: clean all
+clean cl: clean_lib
+rebuild rb: clean all
 
 PCH = StdAfx.h.gch
 
@@ -305,7 +313,8 @@ CREATE_DEF = @(echo 'creating $@'; rm -f $@; \
 	sed 's,.*.o\( \)*:,$(patsubst %.inc,%.o,$@) $@ :,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$)
 
-static: depends $(OBJS_DST)
+#static: depends $(OBJS_DST)
+static: $(OBJS_DST)
 	@echo 'creating $(LIB_PATH_DST)/$(STATIC_LIBNAME)'
 	@$(AR) $(ARFL) $(LIB_PATH_DST)/$(STATIC_LIBNAME) $(OBJS_DST)
 	@$(RANLIB) $(LIB_PATH_DST)/$(STATIC_LIBNAME)
@@ -315,7 +324,8 @@ static: depends $(OBJS_DST)
 
 #shared_ldflags = -lmysqlclient -lrt -lpthread -ldl
 shared_ldflags = -lrt -lpthread -ldl
-shared: depends $(OBJS_DST)
+#shared: depends $(OBJS_DST)
+shared: $(OBJS_DST)
 	@echo ''
 	@echo 'creating $(SHARED_LIBNAME)'
 	@if test -n "$(rpath)" && test "$(UNIXTYPE)" = "LINUX"; then \
@@ -487,14 +497,6 @@ $(OBJ_PATH_DST)/%.o: $(SRC_PATH_SRC)/master/%.c
 	$(COMPILE_OBJ)
 $(DEF_PATH_DST)/%.inc: $(SRC_PATH_SRC)/master/%.c
 	$(CREATE_DEF)
-$(OBJ_PATH_DST)/%.o: $(SRC_PATH_SRC)/master/framework/%.c
-	$(COMPILE_OBJ)
-$(DEF_PATH_DST)/%.inc: $(SRC_PATH_SRC)/master/framework/%.c
-	$(CREATE_DEF)
-$(OBJ_PATH_DST)/%.o: $(SRC_PATH_SRC)/master/framework/trigger/%.c
-	$(COMPILE_OBJ)
-$(DEF_PATH_DST)/%.inc: $(SRC_PATH_SRC)/master/framework/trigger/%.c
-	$(CREATE_DEF)
 $(OBJ_PATH_DST)/%.o: $(SRC_PATH_SRC)/master/template/%.c
 	$(COMPILE_OBJ)
 $(DEF_PATH_DST)/%.inc: $(SRC_PATH_SRC)/master/template/%.c
@@ -537,34 +539,5 @@ clean_lib:
 	rm -f $(OBJS_DST)
 	rm -f $(OBJS_DEF)
 	rm -f $(PCH)
-
-###########################################################
-
-MASTER = acl_master
-MASTER_OBJ_PATH = $(OUT_PATH)/master
-
-MASTERD_SRC   = $(wildcard $(SRC_PATH_SRC)/master/daemon/*.c)
-MASTERD_OBJ   = $(patsubst %.c, $(MASTER_OBJ_PATH)/%.o, $(notdir $(MASTERD_SRC)))
-
-# master
-acl_master: static $(MASTERD_OBJ)
-	@echo ''
-	@echo 'creating acl_master'
-	@if test -n "$(rpath)"; then \
-		$(CC) -o $(MASTER_OBJ_PATH)/$(MASTER) $(MASTERD_OBJ) \
-			$(LIB_PATH_DST)/$(LIB_NAME) $(SYSLIB) -Wl,-rpath,$(rpath); \
-	else \
-		$(CC) -o $(MASTER_OBJ_PATH)/$(MASTER) $(MASTERD_OBJ) \
-			$(LIB_PATH_DST)/$(LIB_NAME) $(SYSLIB); \
-	fi
-	cp $(MASTER_OBJ_PATH)/$(MASTER) ../dist/master/libexec/$(RPATH)/
-	@echo 'create acl_master ok!'
-
-$(MASTER_OBJ_PATH)/%.o: $(SRC_PATH_SRC)/master/daemon/%.c
-	$(COMPILE_OBJ)
-
-clean_master:
-	rm -f $(MASTERD_OBJ)
-	rm -f $(MASTER_OBJ_PATH)/acl_master
 
 ###########################################################

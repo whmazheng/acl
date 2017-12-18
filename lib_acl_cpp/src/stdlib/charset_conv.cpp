@@ -19,11 +19,14 @@
 
 #define SCOPY ACL_SAFE_STRNCPY
 
+#ifdef HAVE_H_ICONV
 static const char UTF8_HEADER[] = { (char) 0xEF, (char) 0xBB, (char) 0xBF, (char) 0x00 };
+#endif
 
 #ifdef HAVE_H_ICONV
 # ifdef USE_WIN_ICONV
 #  include "internal/win_iconv.hpp"
+
 #  define __iconv_open    iconv_open
 #  define __iconv_close   iconv_close
 #  define __iconv         iconv
@@ -115,6 +118,14 @@ charset_conv::charset_conv()
 	acl_pthread_once(&__iconv_once, __iconv_dll_load);
 #  endif
 # endif
+#else
+	(void) m_addInvalid;
+	(void) m_errmsg;
+	(void) m_pBuf;
+	(void) m_iconv;
+	(void) m_pInBuf;
+	(void) m_pOutBuf;
+	(void) m_pUtf8Pre;
 #endif
 }
 
@@ -258,8 +269,10 @@ bool charset_conv::update_begin(const char* fromCharset,
 # else
 		__iconv(m_iconv, (const char**) &pNil, &zero, &pNil, &zero, NULL);
 # endif // USE_WIN_ICONV
-#elif defined(ACL_SUNOS5) || defined(ACL_FREEBSD)
+#elif defined(ACL_SUNOS5)
 		__iconv(m_iconv, (const char**) &pNil, &zero, &pNil, &zero);
+#elif defined(ACL_FREEBSD)
+		__iconv(m_iconv, (char**) &pNil, &zero, &pNil, &zero);
 #else
 		__iconv(m_iconv, &pNil, &zero, &pNil, &zero);
 #endif
@@ -352,8 +365,10 @@ bool charset_conv::update(const char* in, size_t len, acl::string* out)
 				&pOut, &nOut, &err);
 		errno = err;
 # endif // USE_WIN_ICONV
-#elif defined(ACL_SUNOS5) || defined(ACL_FREEBSD)
+#elif defined(ACL_SUNOS5)
 		ret = __iconv(m_iconv, (const char**) &pIn, &nIn, &pOut, &nOut);
+#elif defined(ACL_FREEBSD)
+		ret = __iconv(m_iconv, (char**) &pIn, &nIn, &pOut, &nOut);
 #else
 		ret = __iconv(m_iconv, &pIn, &nIn, &pOut, &nOut);
 #endif
@@ -391,9 +406,11 @@ bool charset_conv::update(const char* in, size_t len, acl::string* out)
 			__iconv(m_iconv, (const char**) &pNil,
 				&zero, &pNil, &zero, NULL);
 # endif
-#elif defined(ACL_SUNOS5) || defined(ACL_FREEBSD)
+#elif defined(ACL_SUNOS5)
 			__iconv(m_iconv, (const char**) &pNil,
 				&zero, &pNil, &zero);
+#elif defined(ACL_FREEBSD)
+			__iconv(m_iconv, (char**) &pNil, &zero, &pNil, &zero);
 #else
 			__iconv(m_iconv, &pNil, &zero, &pNil, &zero);
 #endif
@@ -436,8 +453,10 @@ bool charset_conv::update(const char* in, size_t len, acl::string* out)
 			__iconv(m_iconv, (const char**) &pNil,
 				&zero, &pNil, &zero, NULL);
 # endif // USE_WIN_ICONV
-#elif defined(ACL_SUNOS5) || defined(ACL_FREEBSD)
+#elif defined(ACL_SUNOS5)
 			__iconv(m_iconv, (const char**) &pNil, &zero, &pNil, &zero);
+#elif defined(ACL_FREEBSD)
+			__iconv(m_iconv, (char**) &pNil, &zero, &pNil, &zero);
 #else
 			__iconv(m_iconv, &pNil, &zero, &pNil, &zero);
 #endif

@@ -12,6 +12,8 @@ if(CMAKE_SYSTEM_NAME MATCHES "Android")
 	set(UNIX_OS true)
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 	set(UNIX_OS true)
+elseif(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
+	set(UNIX_OS true)
 elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
 	set(UNIX_OS true)
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
@@ -28,12 +30,16 @@ set(proto_path ${CMAKE_CURRENT_SOURCE_DIR}/../lib_protocol)
 set(proto_include ${proto_path}/include)
 set(zlib_include ${CMAKE_CURRENT_SOURCE_DIR}/../include/zlib)
 set(mysql_include ${CMAKE_CURRENT_SOURCE_DIR}/../include/mysql)
+set(pgsql_include ${CMAKE_CURRENT_SOURCE_DIR}/../include/pgsql)
 set(sqlite_include ${CMAKE_CURRENT_SOURCE_DIR}/../include/sqlite)
+set(polarssl_include ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
 include_directories(
 	${zlib_include}
 	${mysql_include}
+	${pgsql_include}
 	${sqlite_include}
+	${polarssl_include}
 	${acl_include}
 	${proto_include}
 	${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -79,6 +85,7 @@ endforeach()
 if (${UNIX_OS})
 	add_definitions(
 		"-W"
+		"-O2"
 		"-fPIC"
 		"-Wall"
 		"-Werror"
@@ -91,13 +98,19 @@ if (${UNIX_OS})
 		"-Wuninitialized"
 		"-D_POSIX_PTHREAD_SEMANTICS"
 		"-DHAS_MYSQL_DLL"
+		"-DHAS_PGSQL_DLL"
 		"-DHAS_SQLITE_DLL"
-		"-Wno-invalid-source-encoding"
-		"-Wno-unused-private-field"
+		"-DHAS_POLARSSL_DLL"
 		"-Wno-unused-parameter"
-		"-Wno-unused-const-variable"
 		"-fexceptions"
 		)
+
+	if (!CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
+		add_definitions("-Wno-invalid-source-encoding"
+			"-Wno-unused-private-field"
+			"-Wno-unused-const-variable"
+			)
+	endif()
 
 	if (CMAKE_BUILD_TYPE STREQUAL "")
 		set(CMAKE_BUILD_TYPE "DEBUG")
@@ -121,7 +134,9 @@ elseif (${WIN_OS})
 endif()
 
 if (CMAKE_SYSTEM_NAME MATCHES "Android")
-	set(CMAKE_SHARED_LINKER_FLAGS "-shared -lz")
+	# set(CMAKE_SHARED_LINKER_FLAGS "-shared -lz")
+	set(CMAKE_SHARED_LINKER_FLAGS "-lz")
+	add_definitions("-Wno-invalid-source-encoding")
 else()
 	set(lib_output_path ${PROJECT_BINARY_DIR}/lib)
 

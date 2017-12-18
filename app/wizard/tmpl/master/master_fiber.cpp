@@ -79,3 +79,9 @@ void master_service::proc_on_exit(void)
 {
 	logger(">>>proc_on_exit<<<");
 }
+
+bool master_service::proc_on_sighup(acl::string&)
+{
+	logger(">>>proc_on_sighup<<<");
+	return true;
+}

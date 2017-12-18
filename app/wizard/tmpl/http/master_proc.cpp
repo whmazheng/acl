@@ -79,6 +79,12 @@ void master_service::proc_on_exit()
 {
 }
 
+bool master_service::proc_on_sighup(acl::string&)
+{
+	logger(">>>proc_on_sighup<<<");
+	return true;
+}
+
 void master_service::do_cgi()
 {
 	acl::memcache_session session("127.0.0.1:11211");

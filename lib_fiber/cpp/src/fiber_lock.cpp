@@ -13,19 +13,20 @@ fiber_mutex::~fiber_mutex(void)
 	acl_fiber_mutex_free(lock_);
 }
 
-void fiber_mutex::lock(void)
+bool fiber_mutex::lock(void)
 {
 	acl_fiber_mutex_lock(lock_);
+	return true;
 }
 
 bool fiber_mutex::trylock(void)
 {
-	return acl_fiber_mutex_trylock(lock_) == 0 ? false : true;
+	return acl_fiber_mutex_trylock(lock_) == 0 ? true : false;
 }
-
-void fiber_mutex::unlock(void)
+bool fiber_mutex::unlock(void)
 {
 	acl_fiber_mutex_unlock(lock_);
+	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////

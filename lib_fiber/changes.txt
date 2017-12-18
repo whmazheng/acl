@@ -1,4 +1,99 @@
 
+73) 2017.11.23
+73.1) feature: fiber_event.c 新增同时支持协程/线程互斥的锁，性能可达千万级别 QPS
+
+72) 2017.11.2
+72.1) feature: fiber.c, fiber_alloc 中需要增加针对信号的处理过程
+72.2) bugfix: fiber_io.c, fiber_io_loop 中容易产生 32 位整数溢出问题，会导致
+定时器无法触发
+
+71) 2017.10.27
+71.1) bugfix: fiber.c，__thread_fiber->switched 原来为有符号 int 型，有可能会
+因溢出问题造成协程调度出问题
+
+70) 2017.10.20
+70.1) feature: EVENT::poll_list, epoll_list 可以采用 FIFO 或 STACK
+70.2) feature: hook sendfile/sendfile64
+
+69) 2017.10.17
+69.1) feature: 增加 acl_fiber_sys_errno/acl_fiber_sys_errno_set/
+acl::fiber::get_sys_errno/acl::fiber_set_sys_errno API 可用于获得/设置当前线程
+的系统的 errno
+
+68) 2017.10.16
+68.1) feature: hook sendfile API
+
+67) 2017.10.10
+67.1) bugfix: fiber_mutex 当启用线程安全方式时，IO 操作过程会产生非法内存访问
+问题而导致事件进入死循环，原因是多个线程中的多个线程如果同时阻塞在同一 fd 上
+时会容易产生此问题，现修改为当进入 IO 读时，dup 出一个新的 fd 并使线程中的协程
+阻塞在该 fd 上
+
+66) 2017.9.29
+66.1) feature: fiber_mutex 可以同时支持线程锁和协程锁
+
+65) 2017.9.28
+65.1) valgrind: fiber_server.c 当进程退出前需要释放掉一些全局对象，以免干扰
+valgrind 产生一些误报
+
+64) 2017.9.27
+64.1) workaround: 为方便使用 valgrind 检查内存问题，将内部一些静态或全局动态
+对象手动释放，以免干扰应用查看真正的内存问题
+
+63) 2017.9.23
+63.1) feature: hook_io.c 支持 hook mkdir
+
+62) 2017.9.22
+62.1) feature: hook_io.c 支持 hook stat/fstat/lstat
+
+61) 2017.9.20
+61.1) feature: hook_net.c 支持 epoll_create1 API
+
+60) 2017.9.18
+60.1) feature: 增加 fiber_trigger 类用于按时间触发操作
+
+59) 2017.9.10
+59.1) feature: 协程服务器模板在执行完 reload 后可以将执行状态反馈给 master
+
+58) 2017.8.25
+58.1) feature: 添加 C++ 版本的协程定时器类 fiber_timer
+58.2) feature: acl_fiber_create_timer 中增加协程栈大小参数
+
+57) 2017.8.21
+57.1) feature: fiber_server.c 当在独立运行时也可以通过配置文件指定 master_reuseport
+选项
+
+56) 2017.7.27
+56.1) compile: master_fiber.hpp 中去掉了对 master_base.hpp 的包含，要求应用
+需要首先包含该头文件
+56.2) compile: lib_fiber.h 中去年了对 lib_acl.h 的包含
+
+55) 2017.7.22
+55.1) feature: master_fiber 增加 get_conf_path, acl_fiber_server.cpp 中增加
+acl_fiber_server_conf，此二方法用于获得当前的服务配置文件路径
+
+54) 2017.7.7
+54.1) feature: master/fiber_server.c 中将 fiber_sleep 协程的栈大小允许受配置项
+控制；同时将内部的 STACK_SIZE 缺省值由 64 K 改为 128 K，该值也是用户级所创建
+协程的栈缺省大小
+
+53) 2017.7.4
+53.1) feature: fiber_server.c/master_fiber.cpp 支持 SIGHUP 信号回调过程
+53.2) 重构 fiber_server.c/master_fiber.cpp 代码
+
+52) 2017.7.2
+52.1) feature: fiber_server.c 支持多线程运行模式
+
+51) 2017.6.6
+51.1) feature: fiber_server.c 在启动协程调度前的过程放在主线程中进行，从而使
+该段代码的运行栈大小不受协程栈大小的限制
+
+50) 2017.5.16
+50.1) feature: fiber_server.c 协程服务器模板增加了平滑退出机制
+
+49) 2017.5.1
+49.1) samples/pgsql: 添加测试 postgresql 的客户端例子
+
 48) 2017.4.24
 48.1) bugfix: fiber.s 中 acl_fiber_set_specific 在调用 realloc 重新分配内存槽
 时应该将空闲的槽置 NULL

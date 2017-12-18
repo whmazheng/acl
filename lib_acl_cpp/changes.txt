@@ -1,6 +1,121 @@
 修改历史列表：
 
 -----------------------------------------------------------------------
+503) 2017.12.14
+503.1) compile: 使用 cmake 编译时报错
+
+502) 2017.12.7
+502.1) bugfix: polarssl_conf.cpp 将库的初始化放在构造函数之外，以应对应用不同的
+使用方式
+
+501) 2017.12.5
+501.1) bugfix: redis 模块中有些命令类对于二进制的数据支持存在问题
+
+500) 2017.12.2
+500.1) bugfix: polarssl_conf.cpp 在动态加载 polarssl 库时，如果应用定义了全局
+的 acl::polarssl_conf 对象，则会因 polarssl_conf 类内部的 __polarssl_path 也是
+静态全局的，编译器在构建此两个对象时的顺序是先构造应用的 polarssl_conf 对象而
+后构造 __polarssl_path，从而导致 polarssl_conf 在构造时会引起崩溃
+
+499) 2017.11.14
+499.1) feature: 增加 tbox 类，用于在多线程环境中传递消息对象
+
+498) 2017.11.7
+498.1) bugfix: string.cpp 中在重载 < 和 > 符号时，应取最小长度值进行比较，但
+内部却误写成取最长长度进行比较，容易造成内存非法访问
+
+497) 2017.10.26
+497.1) bugfix: redis_hash.cpp 中当调用 hmset 命令时有一处填写了错误的命令字
+
+496) 2017.10.6
+496.1) feature: 添加新类 event_mutex，该类以原子操作 + IO 事件方式支持线程级
+或协程级的互斥功能
+
+495) 2017.9.29
+495.1) feature: thread_mutex 将是否创建递归锁做为构造参数选项
+
+494) 2017.9.28
+494.1) valgrind: 在 master_base.cpp 中的析构函数中需要释放掉一些全局内存对象，
+以免让 valgrind 产生误报而干扰应用进程中真正的内存问题
+
+493) 2017.9.21
+493.1) bitmap 类中的方法名可能与其它系统冲突
+
+492) 2017.9.18
+492.1) feature: 增加 trigger.hpp 文件，用于按时间进行定时触发操作
+
+491) 2017.9.1
+491.1) feature: acl::mbox 采用模板范型方式
+
+490) 2017.8.23
+490.1) feature: 在 stdlib/ 目录下新增 bitmap 类，用于位映射操作
+
+489) 2017.8.18
+489.1) feature: 增加原子操作类 atomic
+489.2) samples/atomic: 增加测试原子操作的例子
+
+488) 2017.8.8
+488.1) feature: 增加了 tcp 连接池通信模块
+
+487) 2017.8.4
+487.1) feature: polarssl_conf & polarssl_io 两个类支持动态加载 polarssl 动态库
+
+486) 2017.7.27
+486.1) feature: redis_hash 类针对 hmset 方法增加几种实现，以方便用户使用
+
+485) 2017.7.22
+485.1) feature: master_proc/master_aio/master_threads/master_udp/master_trigger
+增加 get_conf_path 方法用于获得当前服务器的配置文件路径
+
+484) 2017.7.20
+484.1) compile: 消除了 clang++ -Wunused-private-field 编译警告
+
+483) 2017.7.4
+483.1) feature: 所有服务器模板支持 SIGHUP 信号回调处理过程
+483.2) 重构所有服务器模板
+
+482) 2017.6.28
+482.1) feature: db_sqlite 类增加了事务处理接口 --- by lindawei <672496008@qq.com>
+
+481) 2017.6.24
+481.1) bugfix: http_request.cpp 中的 reset 方法应该增加 header_.reset() 和
+client_->reset()，否则会引起内存泄露
+
+480) 2017.6.21
+480.1) feature: master_udp.cpp 完全封装了 acl_udp_server.c 中的代码逻辑，之前
+在 alone 运行方式下的逻辑是独立于 acl_udp_server.c 的，不利于使用 valgrind
+查找内存问题
+
+479) 2017.5.31
+479.1) feature: add WebSocketServlet by "fuwangqin" <niukey@qq.com> 
+
+478) 2017.5.27
+478.1) bugfix: websocket::make_frame_header 中当 payload_len 为 126 时会遇到
+内存跨界问题 --- found by "lindawei" <672496008@qq.com>
+
+477) 2017.5.25
+477.1) bugfix: connect_manager::remove 中存在一处删除问题
+--- "fuwangqin" <niukey@qq.com>
+
+476) 2017.5.22
+476.1) performance: http_client.cpp 支持缓冲方式写数据，从而提升了写的性能
+476.2) feature: ostream::write 支持缓冲式写数据
+
+475) 2017.5.13
+475.1) bugfix: gson_helper.ipp 中 gson 模板函数中当第二个参数为 std::list 或
+std::vector 时，如果容器中元素中的成员为对象指针时会因浅拷贝的原因导致指针对象
+被二次释放的问题 -- "lindawei" <672496008@qq.com>
+
+474) 2017.5.5
+474.1) feature: db_pgsql.cpp 支持以 UNIX 域套接口方式连接 postgresql 数据库
+
+473) 2017.4.28
+473.1) bugfix: query.cpp 中 escape 在转义时不应对 \r\n 进行转义
+
+472) 2017.4.27
+472.1) feature: 增加针对 postgreqsl 的支持
+
+-----------------------------------------------------------------------
 471) 2017.4.5
 471.1) feature: 增加 mbox 类用于消息队列的发送与读取，该类封装了 C 对象 ACL_MBOX
 

@@ -109,6 +109,9 @@
     <ClCompile Include="src\db\db_mysql.cpp">
       <Filter>Source Files\db</Filter>
     </ClCompile>
+    <ClCompile Include="src\db\db_pgsql.cpp">
+      <Filter>Source Files\db</Filter>
+    </ClCompile>
     <ClCompile Include="src\db\db_pool.cpp">
       <Filter>Source Files\db</Filter>
     </ClCompile>
@@ -116,6 +119,12 @@
       <Filter>Source Files\db</Filter>
     </ClCompile>
     <ClCompile Include="src\stdlib\zlib_stream.cpp">
+      <Filter>Source Files\stdlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stdlib\atomic.cpp">
+      <Filter>Source Files\stdlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stdlib\bitmap.cpp">
       <Filter>Source Files\stdlib</Filter>
     </ClCompile>
     <ClCompile Include="src\stdlib\charset_conv.cpp">
@@ -280,6 +289,9 @@
     <ClCompile Include="src\http\websocket.cpp">
       <Filter>Source Files\http</Filter>
     </ClCompile>
+    <ClCompile Include="src\http\WebSocketServlet.cpp">
+      <Filter>Source Files\http</Filter>
+    </ClCompile>
     <ClCompile Include="src\stdlib\sha1.cpp">
       <Filter>Source Files\stdlib</Filter>
     </ClCompile>
@@ -328,6 +340,9 @@
     <ClCompile Include="src\db\mysql_pool.cpp">
       <Filter>Source Files\db</Filter>
     </ClCompile>
+    <ClCompile Include="src\db\pgsql_pool.cpp">
+      <Filter>Source Files\db</Filter>
+    </ClCompile>
     <ClCompile Include="src\db\sqlite_pool.cpp">
       <Filter>Source Files\db</Filter>
     </ClCompile>
@@ -335,6 +350,24 @@
       <Filter>Source Files\connpool</Filter>
     </ClCompile>
     <ClCompile Include="src\connpool\connect_pool.cpp">
+      <Filter>Source Files\connpool</Filter>
+    </ClCompile>
+    <ClCompile Include="src\connpool\tcp_reader.cpp">
+      <Filter>Source Files\connpool</Filter>
+    </ClCompile>
+    <ClCompile Include="src\connpool\tcp_sender.cpp">
+      <Filter>Source Files\connpool</Filter>
+    </ClCompile>
+    <ClCompile Include="src\connpool\tcp_client.cpp">
+      <Filter>Source Files\connpool</Filter>
+    </ClCompile>
+    <ClCompile Include="src\connpool\tcp_pool.cpp">
+      <Filter>Source Files\connpool</Filter>
+    </ClCompile>
+    <ClCompile Include="src\connpool\tcp_manager.cpp">
+      <Filter>Source Files\connpool</Filter>
+    </ClCompile>
+    <ClCompile Include="src\connpool\tcp_ipc.cpp">
       <Filter>Source Files\connpool</Filter>
     </ClCompile>
     <ClCompile Include="src\http\http_request_pool.cpp">
@@ -358,6 +391,12 @@
     <ClCompile Include="src\stdlib\thread.cpp">
       <Filter>Source Files\stdlib</Filter>
     </ClCompile>
+    <ClCompile Include="src\stdlib\thread_cond.cpp">
+      <Filter>Source Files\stdlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stdlib\thread_mutex.cpp">
+      <Filter>Source Files\stdlib</Filter>
+    </ClCompile>
     <ClCompile Include="src\stdlib\thread_pool.cpp">
       <Filter>Source Files\stdlib</Filter>
     </ClCompile>
@@ -369,6 +408,9 @@
     </ClCompile>
     <ClCompile Include="src\stream\aio_timer_callback.cpp">
       <Filter>Source Files\stream</Filter>
+    </ClCompile>
+    <ClCompile Include="src\event\event_mutex.cpp">
+      <Filter>Source Files\event</Filter>
     </ClCompile>
     <ClCompile Include="src\event\event_timer.cpp">
       <Filter>Source Files\event</Filter>
@@ -490,10 +532,16 @@
     <ClCompile Include="src\db\mysql_manager.cpp">
       <Filter>Source Files\db</Filter>
     </ClCompile>
+    <ClCompile Include="src\db\pgsql_manager.cpp">
+      <Filter>Source Files\db</Filter>
+    </ClCompile>
     <ClCompile Include="src\db\sqlite_manager.cpp">
       <Filter>Source Files\db</Filter>
     </ClCompile>
     <ClCompile Include="src\db\mysql_conf.cpp">
+      <Filter>Source Files\db</Filter>
+    </ClCompile>
+    <ClCompile Include="src\db\pgsql_conf.cpp">
       <Filter>Source Files\db</Filter>
     </ClCompile>
     <ClCompile Include="src\smtp\smtp_client.cpp">
@@ -567,6 +615,9 @@
     <ClInclude Include="include\acl_cpp\db\db_mysql.hpp">
       <Filter>Header Files\db</Filter>
     </ClInclude>
+    <ClInclude Include="include\acl_cpp\db\db_pgsql.hpp">
+      <Filter>Header Files\db</Filter>
+    </ClInclude>
     <ClInclude Include="include\acl_cpp\db\db_pool.hpp">
       <Filter>Header Files\db</Filter>
     </ClInclude>
@@ -631,6 +682,9 @@
       <Filter>Header Files\http</Filter>
     </ClInclude>
     <ClInclude Include="include\acl_cpp\http\websocket.hpp">
+      <Filter>Header Files\http</Filter>
+    </ClInclude>
+    <ClInclude Include="include\acl_cpp\http\WebSocketServlet.hpp">
       <Filter>Header Files\http</Filter>
     </ClInclude>
     <ClInclude Include="include\acl_cpp\http\HttpServlet.hpp">
@@ -724,6 +778,12 @@
       <Filter>Header Files\session</Filter>
     </ClInclude>
     <ClInclude Include="include\acl_cpp\stdlib\zlib_stream.hpp">
+      <Filter>Header Files\stdlib</Filter>
+    </ClInclude>
+    <ClInclude Include="include\acl_cpp\stdlib\atomic.hpp">
+      <Filter>Header Files\stdlib</Filter>
+    </ClInclude>
+    <ClInclude Include="include\acl_cpp\stdlib\bitmap.hpp">
       <Filter>Header Files\stdlib</Filter>
     </ClInclude>
     <ClInclude Include="include\acl_cpp\stdlib\charset_conv.hpp">
@@ -864,6 +924,9 @@
     <ClInclude Include="include\acl_cpp\db\mysql_pool.hpp">
       <Filter>Header Files\db</Filter>
     </ClInclude>
+    <ClInclude Include="include\acl_cpp\db\pgsql_pool.hpp">
+      <Filter>Header Files\db</Filter>
+    </ClInclude>
     <ClInclude Include="include\acl_cpp\db\sqlite_pool.hpp">
       <Filter>Header Files\db</Filter>
     </ClInclude>
@@ -874,6 +937,24 @@
       <Filter>Header Files\connpool</Filter>
     </ClInclude>
     <ClInclude Include="include\acl_cpp\connpool\connect_pool.hpp">
+      <Filter>Header Files\connpool</Filter>
+    </ClInclude>
+    <ClInclude Include="include\acl_cpp\connpool\tcp_reader.hpp">
+      <Filter>Header Files\connpool</Filter>
+    </ClInclude>
+    <ClInclude Include="include\acl_cpp\connpool\tcp_sender.hpp">
+      <Filter>Header Files\connpool</Filter>
+    </ClInclude>
+    <ClInclude Include="include\acl_cpp\connpool\tcp_client.hpp">
+      <Filter>Header Files\connpool</Filter>
+    </ClInclude>
+    <ClInclude Include="include\acl_cpp\connpool\tcp_pool.hpp">
+      <Filter>Header Files\connpool</Filter>
+    </ClInclude>
+    <ClInclude Include="include\acl_cpp\connpool\tcp_manager.hpp">
+      <Filter>Header Files\connpool</Filter>
+    </ClInclude>
+    <ClInclude Include="include\acl_cpp\connpool\tcp_ipc.hpp">
       <Filter>Header Files\connpool</Filter>
     </ClInclude>
     <ClInclude Include="include\acl_cpp\http\http_request_pool.hpp">
@@ -897,6 +978,12 @@
     <ClInclude Include="include\acl_cpp\stdlib\thread.hpp">
       <Filter>Header Files\stdlib</Filter>
     </ClInclude>
+    <ClInclude Include="include\acl_cpp\stdlib\thread_cond.hpp">
+      <Filter>Header Files\stdlib</Filter>
+    </ClInclude>
+    <ClInclude Include="include\acl_cpp\stdlib\thread_mutex.hpp">
+      <Filter>Header Files\stdlib</Filter>
+    </ClInclude>
     <ClInclude Include="include\acl_cpp\stdlib\thread_pool.hpp">
       <Filter>Header Files\stdlib</Filter>
     </ClInclude>
@@ -908,6 +995,9 @@
     </ClInclude>
     <ClInclude Include="include\acl_cpp\stream\aio_timer_callback.hpp">
       <Filter>Header Files\stream</Filter>
+    </ClInclude>
+    <ClInclude Include="include\acl_cpp\event\event_mutex.hpp">
+      <Filter>Header Files\event</Filter>
     </ClInclude>
     <ClInclude Include="include\acl_cpp\event\event_timer.hpp">
       <Filter>Header Files\event</Filter>
@@ -1026,6 +1116,9 @@
     <ClInclude Include="include\acl_cpp\stdlib\thread_queue.hpp">
       <Filter>Header Files\stdlib</Filter>
     </ClInclude>
+    <ClInclude Include="include\acl_cpp\stdlib\trigger.hpp">
+      <Filter>Header Files\stdlib</Filter>
+    </ClInclude>
     <ClInclude Include="include\acl_cpp\redis\redis_geo.hpp">
       <Filter>Header Files\redis</Filter>
     </ClInclude>
@@ -1038,10 +1131,16 @@
     <ClInclude Include="include\acl_cpp\db\mysql_manager.hpp">
       <Filter>Header Files\db</Filter>
     </ClInclude>
+    <ClInclude Include="include\acl_cpp\db\pgsql_manager.hpp">
+      <Filter>Header Files\db</Filter>
+    </ClInclude>
     <ClInclude Include="include\acl_cpp\db\sqlite_manager.hpp">
       <Filter>Header Files\db</Filter>
     </ClInclude>
     <ClInclude Include="include\acl_cpp\db\mysql_conf.hpp">
+      <Filter>Header Files\db</Filter>
+    </ClInclude>
+    <ClInclude Include="include\acl_cpp\db\pgsql_conf.hpp">
       <Filter>Header Files\db</Filter>
     </ClInclude>
     <ClInclude Include="include\acl_cpp\smtp\smtp_client.hpp">

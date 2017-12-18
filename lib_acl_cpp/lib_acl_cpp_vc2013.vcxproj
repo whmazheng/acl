@@ -173,8 +173,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\include;..\lib_acl\include;..\lib_protocol\include;..\include\sqlite;..\include\zlib;..\include\mysql;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_LIB;_MT;USE_WIN_ICONV;HAS_MYSQL_DLL;HAS_SQLITE_DLL;HAS_ZLIB_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\include;..\lib_acl\include;..\lib_protocol\include;..\include\sqlite;..\include\zlib;..\include\mysql;..\include\pgsql;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_LIB;_MT;USE_WIN_ICONV;HAS_MYSQL_DLL;HAS_SQLITE_DLL;HAS_PGSQL_DLL;HAS_POLARSSL_DLL;HAS_ZLIB_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -198,8 +198,8 @@ copy $(TargetName).pdb ..\dist\lib\win32\$(TargetName).pdb /Y</Command>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\include;..\lib_acl\include;..\lib_protocol\include;..\include\sqlite;..\include\zlib;..\include\mysql;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_LIB;_MT;USE_WIN_ICONV;HAS_MYSQL_DLL;HAS_SQLITE_DLL;HAS_ZLIB_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\include;..\lib_acl\include;..\lib_protocol\include;..\include\sqlite;..\include\zlib;..\include\mysql;..\include\pgsql;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_LIB;_MT;USE_WIN_ICONV;HAS_MYSQL_DLL;HAS_SQLITE_DLL;HAS_PGSQL_DLL;HAS_POLARSSL_DLL;HAS_ZLIB_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -221,8 +221,8 @@ copy $(TargetName).pdb ..\dist\lib\win64\$(TargetName).pdb /Y</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\include;..\lib_acl\include;..\lib_protocol\include;..\include\sqlite;..\include\zlib;..\include\mysql;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;_LIB;USE_WIN_ICONV;HAS_MYSQL_DLL;HAS_SQLITE_DLL;HAS_ZLIB_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\include;..\lib_acl\include;..\lib_protocol\include;..\include\sqlite;..\include\zlib;..\include\mysql;..\include\pgsql;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_LIB;USE_WIN_ICONV;HAS_MYSQL_DLL;HAS_SQLITE_DLL;HAS_PGSQL_DLL;HAS_POLARSSL_DLL;HAS_ZLIB_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>acl_stdafx.hpp</PrecompiledHeaderFile>
@@ -241,8 +241,8 @@ copy $(TargetName).pdb ..\dist\lib\win32\$(TargetName).pdb /Y</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\include;..\lib_acl\include;..\lib_protocol\include;..\include\sqlite;..\include\zlib;..\include\mysql;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;_LIB;USE_WIN_ICONV;HAS_MYSQL_DLL;HAS_SQLITE_DLL;HAS_ZLIB_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\include;..\lib_acl\include;..\lib_protocol\include;..\include\sqlite;..\include\zlib;..\include\mysql;..\include\pgsql;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_LIB;USE_WIN_ICONV;HAS_MYSQL_DLL;HAS_SQLITE_DLL;HAS_PGSQL_DLL;HAS_ZLIB_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>acl_stdafx.hpp</PrecompiledHeaderFile>
@@ -262,8 +262,8 @@ copy $(TargetName).pdb ..\dist\lib\win64\$(TargetName).pdb /Y</Command>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDll|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\include;..\lib_acl\include;..\lib_protocol\include;..\include\sqlite;..\include\zlib;..\include\mysql;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_LIB;_MT;ACL_DLL;ACL_CPP_DLL;ACL_CPP_EXPORTS;USE_WIN_ICONV;HAS_MYSQL_DLL;HAS_SQLITE_DLL;HAS_ZLIB_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\include;..\lib_acl\include;..\lib_protocol\include;..\include\sqlite;..\include\zlib;..\include\mysql;..\include\pgsql;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_LIB;_MT;ACL_DLL;ACL_CPP_DLL;ACL_CPP_EXPORTS;USE_WIN_ICONV;HAS_MYSQL_DLL;HAS_SQLITE_DLL;HAS_PGSQL_DLL;HAS_POLARSSL_DLL;HAS_ZLIB_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -295,8 +295,8 @@ copy $(TargetName).pdb ..\dist\lib\win32\$(TargetName).pdb /Y
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDll|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\include;..\lib_acl\include;..\lib_protocol\include;..\include\sqlite;..\include\zlib;..\include\mysql;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_LIB;_MT;ACL_DLL;ACL_CPP_DLL;ACL_CPP_EXPORTS;USE_WIN_ICONV;HAS_MYSQL_DLL;HAS_SQLITE_DLL;HAS_ZLIB_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\include;..\lib_acl\include;..\lib_protocol\include;..\include\sqlite;..\include\zlib;..\include\mysql;..\include\pgsql;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_LIB;_MT;ACL_DLL;ACL_CPP_DLL;ACL_CPP_EXPORTS;USE_WIN_ICONV;HAS_MYSQL_DLL;HAS_SQLITE_DLL;HAS_PGSQL_DLL;HAS_POLARSSL_DLL;HAS_ZLIB_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -327,8 +327,8 @@ copy $(TargetName).pdb ..\dist\lib\win64\$(TargetName).pdb /Y
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Releasedll|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\include;..\lib_acl\include;..\lib_protocol\include;..\include\sqlite;..\include\zlib;..\include\mysql;.\src;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;_LIB;_MT;ACL_DLL;ACL_CPP_DLL;ACL_CPP_EXPORTS;USE_WIN_ICONV;HAS_MYSQL_DLL;HAS_SQLITE_DLL;HAS_ZLIB_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\include;..\lib_acl\include;..\lib_protocol\include;..\include\sqlite;..\include\zlib;..\include\mysql;..\include\pgsql;.\src;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_LIB;_MT;ACL_DLL;ACL_CPP_DLL;ACL_CPP_EXPORTS;USE_WIN_ICONV;HAS_MYSQL_DLL;HAS_SQLITE_DLL;HAS_PGSQL_DLL;HAS_POLARSSL_DLL;HAS_ZLIB_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -357,8 +357,8 @@ copy $(TargetName).pdb ..\dist\lib\win32\$(TargetName).pdb /Y
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Releasedll|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\include;..\lib_acl\include;..\lib_protocol\include;..\include\sqlite;..\include\zlib;..\include\mysql;.\src;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;_LIB;_MT;ACL_DLL;ACL_CPP_DLL;ACL_CPP_EXPORTS;USE_WIN_ICONV;HAS_MYSQL_DLL;HAS_SQLITE_DLL;HAS_ZLIB_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\include;..\lib_acl\include;..\lib_protocol\include;..\include\sqlite;..\include\zlib;..\include\mysql;..\include\pgsql;.\src;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_LIB;_MT;ACL_DLL;ACL_CPP_DLL;ACL_CPP_EXPORTS;USE_WIN_ICONV;HAS_MYSQL_DLL;HAS_SQLITE_DLL;HAS_PGSQL_DLL;HAS_POLARSSL_DLL;HAS_ZLIB_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -404,22 +404,33 @@ copy $(TargetName).pdb ..\dist\lib\win64\$(TargetName).pdb /Y
     <ClCompile Include="src\connpool\connect_manager.cpp" />
     <ClCompile Include="src\connpool\connect_monitor.cpp" />
     <ClCompile Include="src\connpool\connect_pool.cpp" />
+    <ClCompile Include="src\connpool\tcp_reader.cpp" />
+    <ClCompile Include="src\connpool\tcp_sender.cpp" />
+    <ClCompile Include="src\connpool\tcp_client.cpp" />
+    <ClCompile Include="src\connpool\tcp_pool.cpp" />
+    <ClCompile Include="src\connpool\tcp_manager.cpp" />
+    <ClCompile Include="src\connpool\tcp_ipc.cpp" />
     <ClCompile Include="src\db\db_handle.cpp" />
     <ClCompile Include="src\db\db_mysql.cpp" />
+    <ClCompile Include="src\db\db_pgsql.cpp" />
     <ClCompile Include="src\db\db_pool.cpp" />
     <ClCompile Include="src\db\mysql_conf.cpp" />
     <ClCompile Include="src\db\mysql_manager.cpp" />
+    <ClCompile Include="src\db\pgsql_conf.cpp" />
+    <ClCompile Include="src\db\pgsql_manager.cpp" />
     <ClCompile Include="src\db\query.cpp" />
     <ClCompile Include="src\db\db_service.cpp" />
     <ClCompile Include="src\db\db_service_mysql.cpp" />
     <ClCompile Include="src\db\db_service_sqlite.cpp" />
     <ClCompile Include="src\db\db_sqlite.cpp" />
     <ClCompile Include="src\db\mysql_pool.cpp" />
+    <ClCompile Include="src\db\pgsql_pool.cpp" />
     <ClCompile Include="src\db\sqlite_manager.cpp" />
     <ClCompile Include="src\db\sqlite_pool.cpp" />
     <ClCompile Include="src\disque\disque.cpp" />
     <ClCompile Include="src\disque\disque_cond.cpp" />
     <ClCompile Include="src\disque\disque_job.cpp" />
+    <ClCompile Include="src\event\event_mutex.cpp" />
     <ClCompile Include="src\event\event_timer.cpp" />
     <ClCompile Include="src\hsocket\hsclient.cpp" />
     <ClCompile Include="src\hsocket\hserror.cpp" />
@@ -445,6 +456,7 @@ copy $(TargetName).pdb ..\dist\lib\win64\$(TargetName).pdb /Y
     <ClCompile Include="src\http\http_service.cpp" />
     <ClCompile Include="src\http\http_utils.cpp" />
     <ClCompile Include="src\http\websocket.cpp" />
+    <ClCompile Include="src\http\WebSocketServlet.cpp" />
     <ClCompile Include="src\ipc\ipc_client.cpp" />
     <ClCompile Include="src\ipc\ipc_server.cpp" />
     <ClCompile Include="src\ipc\ipc_service.cpp" />
@@ -518,6 +530,8 @@ copy $(TargetName).pdb ..\dist\lib\win64\$(TargetName).pdb /Y
     <ClCompile Include="src\smtp\mail_body.cpp" />
     <ClCompile Include="src\smtp\mail_message.cpp" />
     <ClCompile Include="src\smtp\smtp_client.cpp" />
+    <ClCompile Include="src\stdlib\atomic.cpp" />
+    <ClCompile Include="src\stdlib\bitmap.cpp" />
     <ClCompile Include="src\stdlib\charset_conv.cpp" />
     <ClCompile Include="src\stdlib\dbuf_pool.cpp" />
     <ClCompile Include="src\stdlib\dns_service.cpp" />
@@ -535,6 +549,8 @@ copy $(TargetName).pdb ..\dist\lib\win64\$(TargetName).pdb /Y
     <ClCompile Include="src\stdlib\snprintf.cpp" />
     <ClCompile Include="src\stdlib\string.cpp" />
     <ClCompile Include="src\stdlib\thread.cpp" />
+    <ClCompile Include="src\stdlib\thread_cond.cpp" />
+    <ClCompile Include="src\stdlib\thread_mutex.cpp" />
     <ClCompile Include="src\stdlib\thread_pool.cpp" />
     <ClCompile Include="src\stdlib\thread_queue.cpp" />
     <ClCompile Include="src\stdlib\url_coder.cpp" />
@@ -577,23 +593,34 @@ copy $(TargetName).pdb ..\dist\lib\win64\$(TargetName).pdb /Y
     <ClInclude Include="include\acl_cpp\connpool\connect_manager.hpp" />
     <ClInclude Include="include\acl_cpp\connpool\connect_monitor.hpp" />
     <ClInclude Include="include\acl_cpp\connpool\connect_pool.hpp" />
+    <ClInclude Include="include\acl_cpp\connpool\tcp_reader.hpp" />
+    <ClInclude Include="include\acl_cpp\connpool\tcp_sender.hpp" />
+    <ClInclude Include="include\acl_cpp\connpool\tcp_client.hpp" />
+    <ClInclude Include="include\acl_cpp\connpool\tcp_pool.hpp" />
+    <ClInclude Include="include\acl_cpp\connpool\tcp_manager.hpp" />
+    <ClInclude Include="include\acl_cpp\connpool\tcp_ipc.hpp" />
     <ClInclude Include="include\acl_cpp\db\db_handle.hpp" />
     <ClInclude Include="include\acl_cpp\db\db_mysql.hpp" />
+    <ClInclude Include="include\acl_cpp\db\db_pgsql.hpp" />
     <ClInclude Include="include\acl_cpp\db\db_pool.hpp" />
     <ClInclude Include="include\acl_cpp\db\mysql_conf.hpp" />
     <ClInclude Include="include\acl_cpp\db\mysql_manager.hpp" />
+    <ClInclude Include="include\acl_cpp\db\pgsql_conf.hpp" />
+    <ClInclude Include="include\acl_cpp\db\pgsql_manager.hpp" />
     <ClInclude Include="include\acl_cpp\db\query.hpp" />
     <ClInclude Include="include\acl_cpp\db\db_service.hpp" />
     <ClInclude Include="include\acl_cpp\db\db_service_mysql.hpp" />
     <ClInclude Include="include\acl_cpp\db\db_service_sqlite.hpp" />
     <ClInclude Include="include\acl_cpp\db\db_sqlite.hpp" />
     <ClInclude Include="include\acl_cpp\db\mysql_pool.hpp" />
+    <ClInclude Include="include\acl_cpp\db\pgsql_pool.hpp" />
     <ClInclude Include="include\acl_cpp\db\sqlite_manager.hpp" />
     <ClInclude Include="include\acl_cpp\db\sqlite_pool.hpp" />
     <ClInclude Include="include\acl_cpp\disque\disque.hpp" />
     <ClInclude Include="include\acl_cpp\disque\disque_cond.hpp" />
     <ClInclude Include="include\acl_cpp\disque\disque_job.hpp" />
     <ClInclude Include="include\acl_cpp\disque\disque_node.hpp" />
+    <ClInclude Include="include\acl_cpp\event\event_mutex.hpp" />
     <ClInclude Include="include\acl_cpp\event\event_timer.hpp" />
     <ClInclude Include="include\acl_cpp\hsocket\hsclient.hpp" />
     <ClInclude Include="include\acl_cpp\hsocket\hserror.hpp" />
@@ -620,6 +647,7 @@ copy $(TargetName).pdb ..\dist\lib\win64\$(TargetName).pdb /Y
     <ClInclude Include="include\acl_cpp\http\http_type.hpp" />
     <ClInclude Include="include\acl_cpp\http\http_utils.hpp" />
     <ClInclude Include="include\acl_cpp\http\websocket.hpp" />
+    <ClInclude Include="include\acl_cpp\http\WebSocketServlet.hpp" />
     <ClInclude Include="include\acl_cpp\ipc\ipc_client.hpp" />
     <ClInclude Include="include\acl_cpp\ipc\ipc_server.hpp" />
     <ClInclude Include="include\acl_cpp\ipc\ipc_service.hpp" />
@@ -681,6 +709,8 @@ copy $(TargetName).pdb ..\dist\lib\win64\$(TargetName).pdb /Y
     <ClInclude Include="include\acl_cpp\smtp\mail_body.hpp" />
     <ClInclude Include="include\acl_cpp\smtp\mail_message.hpp" />
     <ClInclude Include="include\acl_cpp\smtp\smtp_client.hpp" />
+    <ClInclude Include="include\acl_cpp\stdlib\atomic.hpp" />
+    <ClInclude Include="include\acl_cpp\stdlib\bitmap.hpp" />
     <ClInclude Include="include\acl_cpp\stdlib\charset_conv.hpp" />
     <ClInclude Include="include\acl_cpp\stdlib\dbuf_pool.hpp" />
     <ClInclude Include="include\acl_cpp\stdlib\dns_service.hpp" />
@@ -700,8 +730,11 @@ copy $(TargetName).pdb ..\dist\lib\win64\$(TargetName).pdb /Y
     <ClInclude Include="include\acl_cpp\stdlib\snprintf.hpp" />
     <ClInclude Include="include\acl_cpp\stdlib\string.hpp" />
     <ClInclude Include="include\acl_cpp\stdlib\thread.hpp" />
+    <ClInclude Include="include\acl_cpp\stdlib\thread_cond.hpp" />
+    <ClInclude Include="include\acl_cpp\stdlib\thread_mutex.hpp" />
     <ClInclude Include="include\acl_cpp\stdlib\thread_pool.hpp" />
     <ClInclude Include="include\acl_cpp\stdlib\thread_queue.hpp" />
+    <ClInclude Include="include\acl_cpp\stdlib\trigger.hpp" />
     <ClInclude Include="include\acl_cpp\stdlib\url_coder.hpp" />
     <ClInclude Include="include\acl_cpp\stdlib\util.hpp" />
     <ClInclude Include="include\acl_cpp\stdlib\vld.h" />

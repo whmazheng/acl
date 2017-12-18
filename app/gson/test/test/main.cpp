@@ -6,7 +6,7 @@
 #include <iostream>
 #include <time.h>
 #include "struct.h"  // 由 gson 工具根据 struct.stub 转换而成
-#include "gson.h"    // 由 gson 工具根据 struct.stub 生成
+#include "struct.gson.h"    // 由 gson 工具根据 struct.stub 生成
 
 // 序列化过程
 static void serialize(void)
@@ -54,5 +54,6 @@ int main(void)
 {
 	serialize();
 	deserialize();
+	printf("Enter any key to continue ..."); fflush(stdout); getchar();
 	return 0;
 }

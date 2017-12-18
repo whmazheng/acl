@@ -49,8 +49,16 @@ void master_service::on_trigger()
 
 void master_service::proc_on_init()
 {
+	logger(">>>proc_on_init<<<");
 }
 
 void master_service::proc_on_exit()
 {
+	logger(">>>proc_on_exit<<<");
+}
+
+bool master_service::proc_on_sighup(acl::string&)
+{
+	logger(">>>proc_on_sighup<<<");
+	return true;
 }

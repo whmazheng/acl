@@ -1,4 +1,5 @@
 #include "stdafx.hpp"
+#include "acl_cpp/stdlib/trigger.hpp"
 #include "fiber/fiber.hpp"
 
 namespace acl {
@@ -57,6 +58,11 @@ void fiber::ready(fiber& f)
 
 	if (fb)
 		acl_fiber_ready(f.get_fiber());
+}
+
+unsigned int fiber::delay(unsigned int milliseconds)
+{
+	return acl_fiber_delay(milliseconds);
 }
 
 void fiber::hook_api(bool on)
@@ -131,6 +137,34 @@ bool fiber::scheduled(void)
 void fiber::schedule_stop(void)
 {
 	acl_fiber_schedule_stop();
+}
+
+int fiber::get_sys_errno(void)
+{
+	return acl_fiber_sys_errno();
+}
+
+void fiber::set_sys_errno(int errnum)
+{
+	acl_fiber_sys_errno_set(errnum);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+fiber_timer::fiber_timer(void)
+{
+}
+
+void fiber_timer::start(unsigned int milliseconds, size_t stack_size)
+{
+	acl_fiber_create_timer(milliseconds, stack_size, timer_callback, this);
+}
+
+void fiber_timer::timer_callback(ACL_FIBER* f, void* ctx)
+{
+	fiber_timer* me = (fiber_timer *) ctx;
+	me->f_ = f;
+	me->run();
 }
 
 } // namespace acl

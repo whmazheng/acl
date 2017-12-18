@@ -1,7 +1,7 @@
 #ifndef __LIB_ICMP_INCLUDE_H__
 #define __LIB_ICMP_INCLUDE_H__
 
-#include "lib_acl.h"
+/* #include "lib_acl.h" */
 #include "lib_icmp_type.h"
 
 #ifdef __cplusplus
@@ -96,8 +96,8 @@ ICMP_API void icmp_stat_host(ICMP_HOST *host, int show_flag);
  * @param ip {const char*} 主机IP地址，不能为空
  * @param npkt {size_t} 对该主机发送的数据包个数
  * @param dlen {size_t} 每个探测数据包的长度
- * @param delay {int} 发送探测数据包的时间间隔(秒)
- * @param timeout {int} 被探测主机的响应包超时时间(秒)
+ * @param delay {int} 发送探测数据包的时间间隔(毫秒)
+ * @param timeout {int} 被探测主机的响应包超时时间(毫秒)
  * @return {ICMP_HOST*} 被探测主机对象, 如果为空则表示出错
  */
 ICMP_API ICMP_HOST* icmp_host_new(ICMP_CHAT *chat, const char *domain,
@@ -131,11 +131,62 @@ ICMP_API void icmp_host_set(ICMP_HOST *host, void *arg,
  * @param domain {const char*} 域名标识字符串，可以为空
  * @param ip {const char*} 主机IP地址，不能为空
  * @param npkt {size_t} 对该主机发送的数据包个数
- * @param delay {int} 发送探测数据包的时间间隔(秒)
- * @param timeout {int} 被探测主机的响应包超时时间(秒)
+ * @param delay {int} 发送探测数据包的时间间隔(毫秒)
+ * @param timeout {int} 被探测主机的响应包超时时间(毫秒)
  */
 ICMP_API void icmp_ping_one(ICMP_CHAT *chat, const char *domain,
 	const char *ip, size_t npkt, int delay, int timeout);
+
+/*--------------------------------------------------------------------------*/
+
+/**
+ * low level interface for operating ICMP.
+ */
+
+ICMP_API ICMP_STREAM* icmp_stream_open(ACL_AIO *aio);
+ICMP_API void icmp_stream_close(ICMP_STREAM* is);
+ICMP_API ACL_VSTREAM *icmp_vstream(ICMP_STREAM *is);
+ICMP_API void icmp_stream_from(ICMP_STREAM *is, struct sockaddr_in *addr);
+ICMP_API void icmp_stream_dest(ICMP_STREAM *is, struct sockaddr_in *addr);
+ICMP_API void icmp_stream_set_dest(ICMP_STREAM *is, struct sockaddr_in addr);
+
+ICMP_API ICMP_HOST *icmp_host_alloc(ICMP_CHAT *chat, const char *domain,
+		const char *ip);
+ICMP_API void icmp_host_init(ICMP_HOST *host, unsigned char type,
+		unsigned char code, size_t npkt, size_t dlen,
+		int delay, int timeout);
+
+ICMP_API ICMP_PKT *icmp_pkt_alloc(void);
+ICMP_API void icmp_pkt_free(ICMP_PKT *ipkt);
+ICMP_API void icmp_pkt_pack(ICMP_PKT *pkt, unsigned char type,
+		unsigned char code, unsigned short id,
+		const void *payload, size_t payload_len);
+ICMP_API void icmp_pkt_build(ICMP_PKT *pkt, unsigned short seq);
+ICMP_API void icmp_pkt_save_status(ICMP_PKT* to, const ICMP_PKT* from);
+ICMP_API int  icmp_pkt_unpack(struct sockaddr_in from, const char *buf,
+		int bytes, ICMP_PKT *pkt);
+ICMP_API ICMP_PKT* icmp_pkt_check(const ICMP_HOST *host, const ICMP_PKT *pkt);
+
+ICMP_API unsigned char  icmp_pkt_type(const ICMP_PKT *pkt);
+ICMP_API unsigned char  icmp_pkt_code(const ICMP_PKT *pkt);
+ICMP_API unsigned short icmp_pkt_cksum(const ICMP_PKT *pkt);
+ICMP_API unsigned short icmp_pkt_id(const ICMP_PKT *pkt);
+ICMP_API unsigned short icmp_pkt_seq(const ICMP_PKT *pkt);
+ICMP_API unsigned int   icmp_pkt_gid(const ICMP_PKT *pkt);
+ICMP_API const ICMP_PKT *icmp_pkt_peer(const ICMP_PKT *pkt);
+ICMP_API const ICMP_PKT_STATUS *icmp_pkt_status(const ICMP_PKT *pkt);
+ICMP_API size_t icmp_pkt_len(const ICMP_PKT *pkt);
+ICMP_API size_t icmp_pkt_wlen(const ICMP_PKT *pkt);
+ICMP_API size_t icmp_pkt_payload(const ICMP_PKT *pkt, char *buf, size_t size);
+
+ICMP_API size_t icmp_pkt_set_extra(ICMP_PKT *pkt,
+		const void *data, size_t len);
+ICMP_API void icmp_pkt_set_type(ICMP_PKT *pkt, unsigned char type);
+ICMP_API void icmp_pkt_set_code(ICMP_PKT *pkt, unsigned char code);
+ICMP_API void icmp_pkt_set_cksum(ICMP_PKT *pkt, unsigned short cksum);
+ICMP_API void icmp_pkt_set_id(ICMP_PKT *pkt, unsigned short id);
+ICMP_API void icmp_pkt_set_seq(ICMP_PKT *pkt, unsigned short seq);
+ICMP_API void icmp_pkt_set_data(ICMP_PKT *pkt, void *data, size_t size);
 
 #ifdef __cplusplus
 }

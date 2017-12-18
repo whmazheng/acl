@@ -4,7 +4,8 @@
 static int __fibers_count = 2;
 static int __fibers_max   = 2;
 static int __oper_count = 100;
-static struct timeval __begin, __end;
+static struct timeval __begin;
+static struct timeval __finish;
 
 static void fiber_redis(ACL_FIBER *fiber, void *ctx)
 {
@@ -34,6 +35,7 @@ static void fiber_redis(ACL_FIBER *fiber, void *ctx)
 
 	gettimeofday(&now, NULL);
 	double spent = stamp_sub(&now, &last);
+
 	printf("---set spent %.2f ms, count %d, speed: %.2f----\r\n",
 		spent, i, (i * 1000) / (spent > 0 ? spent : 1));
 
@@ -75,8 +77,8 @@ static void fiber_redis(ACL_FIBER *fiber, void *ctx)
 	if (--__fibers_count == 0) {
 		long long total = __fibers_max * i * 3;
 
-		gettimeofday(&__end, NULL);
-		spent = stamp_sub(&__end, &__begin);
+		gettimeofday(&__finish, NULL);
+		spent = stamp_sub(&__finish, &__begin);
 		printf("fibers: %d, count: %lld, spent: %.2f, speed: %.2f\r\n",
 			__fibers_max, total, spent,
 			(total * 1000) / (spent > 0 ? spent : 1));

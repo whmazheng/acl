@@ -22,7 +22,7 @@
 #include "stdlib/acl_iostuff.h"
 #include "../../init/init.h"
 
-#if defined(ACL_LINUX) && !defined(MINGW) && defined(USE_EPOLL)
+#if defined(ACL_LINUX) && !defined(MINGW)
 
 #include "init/acl_init.h"
 #include "thread/acl_pthread.h"
@@ -87,7 +87,7 @@ static EPOLL_CTX *thread_epoll_init(void)
 		return NULL;
 	}
 
-	if (acl_pthread_self() == acl_main_thread_self()) {
+	if ((unsigned int) acl_pthread_self() == acl_main_thread_self()) {
 		main_epoll_ctx = epoll_ctx;
 		atexit(main_epoll_end);
 		acl_msg_info("%s(%d): %s, create epoll_fd: %d, tid: %lu, %lu",
@@ -116,10 +116,10 @@ static int thread_epoll_reopen(EPOLL_CTX *epoll_ctx)
 	return 0;
 }
 
-int acl_read_wait(ACL_SOCKET fd, int timeout)
+int acl_read_epoll_wait(ACL_SOCKET fd, int delay)
 {
-	const char *myname = "acl_read_wait";
-	int   delay = timeout * 1000, ret, retried = 0;
+	const char *myname = "acl_read_epoll_wait";
+	int   ret, retried = 0;
 	EPOLL_CTX *epoll_ctx;
 	struct epoll_event ee, events[1];
 	time_t begin;
@@ -243,13 +243,14 @@ int acl_read_wait(ACL_SOCKET fd, int timeout)
 	return ret;
 }
 
-#elif	defined(ACL_UNIX)
+#endif
 
-int acl_read_wait(ACL_SOCKET fd, int timeout)
+#if defined(ACL_UNIX)
+
+int acl_read_poll_wait(ACL_SOCKET fd, int delay)
 {
-	const char *myname = "acl_read_wait";
+	const char *myname = "acl_read_poll_wait";
 	struct pollfd fds;
-	int   delay = timeout * 1000;
 	time_t begin;
 
 	fds.events = POLLIN | POLLHUP | POLLERR;
@@ -279,16 +280,16 @@ int acl_read_wait(ACL_SOCKET fd, int timeout)
 			acl_set_error(ACL_ETIMEDOUT);
 			return -1;
 		default:
-			if (fds.revents & (POLLHUP | POLLERR)) {
+			if ((fds.revents & POLLIN))
+				return 0;
+			else if (fds.revents & (POLLHUP | POLLERR)) {
 				acl_msg_warn("%s(%d), %s: poll error: %s, "
 					"fd: %d, delay: %d, spent: %ld",
 					__FILE__, __LINE__, myname,
 					acl_last_serror(), fd, delay,
 					(long) (time(NULL) - begin));
 				return -1;
-			} else if ((fds.revents & POLLIN))
-				return 0;
-			else {
+			} else {
 				acl_msg_warn("%s(%d), %s: poll error: %s, "
 					"fd: %d, delay: %d, spent: %ld",
 					__FILE__, __LINE__, myname,
@@ -300,19 +301,21 @@ int acl_read_wait(ACL_SOCKET fd, int timeout)
 	}
 }
 
-#elif defined(WIN32_XX)
+#endif
+
+#if defined(WIN32_XX)
 
 static HANDLE __handle = NULL;
 
-int acl_read_wait(ACL_SOCKET fd, int timeout)
+int acl_read_iocp_wait(ACL_SOCKET fd, int timeout)
 {
-	const char *myname = "acl_read_wait";
+	const char *myname = "acl_read_iocp_wait";
 	OVERLAPPED *overlapped, *lpOverlapped;
 	DWORD recvBytes;
 	BOOL isSuccess;
 	ACL_SOCKET fd2;
 	DWORD bytesTransferred = 0;
-	DWORD delay = timeout * 1000;
+	DWORD delay = timeout;
 	HANDLE h2;
 
 	if (__handle == NULL)
@@ -368,11 +371,11 @@ int acl_read_wait(ACL_SOCKET fd, int timeout)
 	return -1;
 }
 
-#else
+#endif
 
-int acl_read_wait(ACL_SOCKET fd, int timeout)
+int acl_read_select_wait(ACL_SOCKET fd, int delay)
 {
-	const char *myname = "acl_read_wait";
+	const char *myname = "acl_read_select_wait";
 	fd_set  rfds, xfds;
 	struct timeval tv;
 	struct timeval *tp;
@@ -400,9 +403,9 @@ int acl_read_wait(ACL_SOCKET fd, int timeout)
 	FD_ZERO(&xfds);
 	FD_SET(fd, &xfds);
 
-	if (timeout >= 0) {
+	if (delay >= 0) {
 		tv.tv_usec = 0;
-		tv.tv_sec = timeout;
+		tv.tv_sec  = delay / 1000;
 		tp = &tv;
 	} else
 		tp = 0;
@@ -449,4 +452,13 @@ int acl_read_wait(ACL_SOCKET fd, int timeout)
 	}
 }
 
+int acl_read_wait(ACL_SOCKET fd, int timeout)
+{
+#if defined(ACL_LINUX) && !defined(MINGW) && defined(USE_EPOLL)
+	return acl_read_epoll_wait(fd, timeout * 1000);
+#elif defined(ACL_UNIX)
+	return acl_read_poll_wait(fd, timeout * 1000);
+#else
+	return acl_read_select_wait(fd, timeout * 1000);
 #endif
+}

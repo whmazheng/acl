@@ -1,9 +1,10 @@
 #pragma once
-#include "acl_cpp/stream/aio_handle.hpp"
-#include "acl_cpp/stream/aio_listen_stream.hpp"
-#include "acl_cpp/master/master_base.hpp"
+#include "../stream/aio_handle.hpp"
+#include "../stream/aio_listen_stream.hpp"
+#include "master_base.hpp"
 
 struct ACL_VSTREAM;
+struct ACL_VSTRING;
 
 namespace acl {
 
@@ -45,6 +46,12 @@ public:
 	 */
 	void stop();
 
+	/**
+	 * 获得配置文件路径
+	 * @return {const char*} 返回值为 NULL 表示没有设配置文件
+	 */
+	const char* get_conf_path(void) const;
+
 protected:
 	master_aio();
 	virtual ~master_aio();
@@ -58,6 +65,7 @@ protected:
 	virtual bool on_accept(aio_socket_stream* stream) = 0;
 
 private:
+	aio_handle* handle_;
 	/**
 	 * 基类 aio_accept_callback 的虚函数实现
 	 * @param client {aio_socket_stream*} 异步客户端流
@@ -74,7 +82,7 @@ private:
 #endif
 
 	// 当监听一个服务地址时回调此函数
-	static void service_on_listen(ACL_VSTREAM*);
+	static void service_on_listen(void*, ACL_VSTREAM*);
 
 	// 当进程切换用户身份后调用的回调函数
 	static void service_pre_jail(void*);
@@ -84,6 +92,9 @@ private:
 
 	// 当进程退出时调用的回调函数
 	static void service_exit(void*);
+
+	// 当进程收到 SIGHUP 信号后会回调本函数
+	static int service_on_sighup(void*, ACL_VSTRING*);
 };
 
 }  // namespace acl

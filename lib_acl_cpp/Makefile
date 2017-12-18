@@ -14,16 +14,16 @@ CFLAGS = -c -g -W \
 -Wall \
 -Werror \
 -Wpointer-arith \
--Wshadow \
 -D_REENTRANT \
 -D_POSIX_PTHREAD_SEMANTICS \
 -Wno-long-long \
 -Wformat \
 -DHAS_MYSQL_DLL \
+-DHAS_PGSQL_DLL \
 -DHAS_SQLITE_DLL \
+-DHAS_POLARSSL_DLL \
 -Winvalid-pch \
--DACL_PREPARE_COMPILE
-#-DHAS_POLARSSL
+-DACL_PREPARE_COMPILE \
 #-DUSE_DYNAMIC
 # -Wcast-align
 #-Wcast-qual
@@ -43,6 +43,17 @@ polarssl =
 
 ifeq ($(CC),)
         CC = g++
+endif
+
+ifeq ($(findstring g++, $(CC)), g++)
+	GCC_VERSION:=$(shell echo `gcc --version|grep ^gcc|cut -d' ' -f3`)
+	GCC_MAJOR:=$(shell echo "$(GCC_VERSION)" | cut -d'.' -f1)
+	GCC_MINOR:=$(shell echo "$(GCC_VERSION)" | cut -d'.' -f2)
+	GCC_SUB:=$(shell echo "$(GCC_VERSION)" | cut -d'.' -f3)
+	GCC_VER:=$(shell [ $(GCC_MAJOR) -gt 4 -o \( $(GCC_MAJOR) -eq 4 -a $(GCC_MINOR) -ge 4 \) ] && echo true)
+	ifeq ($(GCC_VER), true)
+		CFLAGS += -Wno-implicit-fallthrough
+	endif
 endif
 
 ifeq ($(AR),)
@@ -70,6 +81,7 @@ endif
 # For FreeBSD
 ifeq ($(findstring FreeBSD, $(UNIXNAME)), FreeBSD)
 	UNIXTYPE = FREEBSD
+	CFLAGS += -Wshadow
 	shared_ldflags = -lprotocol -lacl -L/usr/local/lib -liconv -lz -lpthread
 endif
 
@@ -78,6 +90,7 @@ ifeq ($(findstring Darwin, $(UNIXNAME)), Darwin)
 	CFLAGS += -Wno-invalid-source-encoding \
 		  -Wno-extended-offsetof \
 		  -Wno-unused-private-field
+	CFLAGS += -Wshadow
 	UNIXTYPE = MACOSX
 	shared_ldflags = -lprotocol -lacl -L/usr/lib -liconv -lz -lpthread
 endif
@@ -85,18 +98,21 @@ endif
 # For Linux
 ifeq ($(findstring Linux, $(UNIXNAME)), Linux)
 	UNIXTYPE = LINUX
+	CFLAGS += -Wshadow
 	shared_ldflags = -lprotocol -lacl -lrt -lpthread -lz -ldl
 endif
 
 # For MINGW
 ifeq ($(findstring MINGW, $(UNIXNAME)), MINGW)
 	CFLAGS += -DLINUX2 -DMINGW
+	CFLAGS += -Wshadow
 	UNIXTYPE = LINUX
 endif
 
 # For MSYS
 ifeq ($(findstring MSYS, $(UNIXNAME)), MSYS)
 	CFLAGS += -DLINUX2 -DMINGW
+	CFLAGS += -Wshadow
 	UNIXTYPE = LINUX
 endif
 
@@ -115,6 +131,7 @@ endif
 # For HP-UX
 ifeq ($(findstring HP-UX, $(UNIXNAME)), HP-UX)
 	CFLAGS += -DHP_UX -DHPUX11
+	CFLAGS += -Wshadow
 	UNIXTYPE = HPUX
 endif
 
@@ -129,7 +146,8 @@ LIB_PATH_DST = ./lib
 DEF_PATH_DST = ./Debug
 
 CFLAGS += -I./src -I./include -I../lib_acl/include -I../lib_protocol/include \
-	  -I../include/sqlite -I../include/mysql -I../include/zlib -I../include
+	  -I../include/sqlite -I../include/mysql -I../include/zlib -I../include \
+	  -I../include/pgsql
 
 #Project's objs
 OBJS_DST = $(patsubst %.cpp, $(OBJ_PATH_DST)/%.o, $(notdir $(wildcard src/*.cpp))) \
@@ -187,9 +205,9 @@ lib: static
 all: static shared sample
 
 $(shell mkdir -p $(DEF_PATH_DST))
-ifneq ($(MAKECMDGOALS),clean)
--include $(OBJS_DEF)
-endif
+#ifneq ($(MAKECMDGOALS),clean)
+#-include $(OBJS_DEF)
+#endif
 
 COMPILE = $(CC) $(CFLAGS)
 COMPILE_OBJ = @(echo 'building $<'; $(COMPILE) $< -o $@)
@@ -203,7 +221,8 @@ CREATE_DEF = @(echo 'creating $@'; rm -f $@; \
 sample: static
 	@(cd samples; make)
 
-static: depends $(OBJS_DST)
+#static: depends $(OBJS_DST)
+static: $(OBJS_DST)
 	@echo 'creating $(LIB_PATH_DST)/$(STATIC_LIBNAME)'
 	@$(AR) $(ARFL) $(LIB_PATH_DST)/$(STATIC_LIBNAME) $(OBJS_DST)
 	@$(RANLIB) $(LIB_PATH_DST)/$(STATIC_LIBNAME)
@@ -211,7 +230,8 @@ static: depends $(OBJS_DST)
 		ln -s $(STATIC_LIBNAME) lib_acl_cpp.a)
 	@echo 'create $(LIB_PATH_DST)/$(STATIC_LIBNAME) ok!'
 
-shared: depends pch $(OBJS_DST)
+#shared: depends pch $(OBJS_DST)
+shared: $(OBJS_DST)
 	@echo 'creating $(SHARED_LIBNAME)'
 	@if test -n "$(rpath)" && test "$(UNIXTYPE)" = "LINUX"; then \
 		echo "building for linux"; \
@@ -239,7 +259,7 @@ shared: depends pch $(OBJS_DST)
 
 depends: $(OBJS_DEF)
 check:
-	@if test -n $(polarssl) && test "$(polarssl)" = "on"; then \
+	@if test "$(polarssl)" = "on"; then \
 		rm -f Debug/polarssl_io.o; \
 		rm -f Debug/polarssl_conf.o; \
 		rm -f Debug/polarssl_io.inc; \
@@ -336,7 +356,7 @@ $(DEF_PATH_DST)/%.inc: ./src/disque/%.cpp
 $(DEF_PATH_DST)/%.inc: ./src/serialize/%.cpp
 	$(CREATE_DEF)
 
-clean:
+clean cl:
 	rm -f $(LIB_PATH_DST)/libacl_cpp.a
 	rm -f $(LIB_PATH_DST)/lib_acl_cpp.a
 	rm -f $(LIB_PATH_DST)/libacl_cpp.so

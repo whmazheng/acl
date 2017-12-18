@@ -19,12 +19,12 @@ socket_stream::~socket_stream()
 	close();
 }
 
-bool socket_stream::open(ACL_SOCKET fd)
+bool socket_stream::open(ACL_SOCKET fd, bool udp_mode /* = false */)
 {
 	ACL_VSTREAM* conn = acl_vstream_fdopen(fd, O_RDWR,
 		8192, 0, ACL_VSTREAM_TYPE_SOCK);
 	acl_assert(conn);
-	return open(conn);
+	return open(conn, udp_mode);
 }
 
 bool socket_stream::open(const char* addr, int conn_timeout, int rw_timeout)
@@ -37,7 +37,7 @@ bool socket_stream::open(const char* addr, int conn_timeout, int rw_timeout)
 	return open(conn);
 }
 
-bool socket_stream::open(ACL_VSTREAM* vstream)
+bool socket_stream::open(ACL_VSTREAM* vstream, bool udp_mode /* = false */)
 {
 	// 先关闭旧的流对象
 	if (stream_)
@@ -46,14 +46,17 @@ bool socket_stream::open(ACL_VSTREAM* vstream)
 	eof_ = false;
 	opened_ = true;
 	//acl_tcp_set_nodelay(ACL_VSTREAM_SOCK(vstream));
+	if (udp_mode)
+		acl_vstream_set_udp_io(stream_);
 	return true;
 }
 
-bool socket_stream::bind_udp(const char* addr, int rw_timeout /* = 0 */)
+bool socket_stream::bind_udp(const char* addr, int rw_timeout /* = 0 */,
+	unsigned flag /* = 0 */)
 {
 	if (stream_)
 		acl_vstream_close(stream_);
-	stream_ = acl_vstream_bind(addr, rw_timeout);
+	stream_ = acl_vstream_bind(addr, rw_timeout, flag);
 	if (stream_ == NULL)
 		return false;
 	eof_ = false;
@@ -138,8 +141,8 @@ const char* socket_stream::get_peer_ip() const
 	if (stream_ == NULL)
 		return dummy_;
 
-	if (peer_ip_[0] != 0)
-		return peer_ip_;
+	//if (peer_ip_[0] != 0)
+	//	return peer_ip_;
 
 	char* ptr = ACL_VSTREAM_PEER(stream_);
 	if (ptr == NULL || *ptr == 0)
@@ -201,8 +204,8 @@ const char* socket_stream::get_local_ip() const
 		return dummy_;
 
 	// xxx: acl_vstream 中没有对此地址赋值
-	if (local_ip_[0] != 0)
-		return local_ip_;
+	//if (local_ip_[0] != 0)
+	//	return local_ip_;
 
 	char* ptr = ACL_VSTREAM_LOCAL(stream_);
 	if (ptr == NULL || *ptr == 0)

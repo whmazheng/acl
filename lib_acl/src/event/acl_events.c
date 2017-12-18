@@ -47,7 +47,8 @@ static void event_init(ACL_EVENT *eventp, int fdsize,
 	eventp->delay_usec = delay_usec % 1000000;
 
 	acl_ring_init(&eventp->timer_head);
-	eventp->timer_keep = 0;
+	eventp->timers = acl_fifo_new();
+
 	SET_TIME(eventp->present);
 	SET_TIME(eventp->last_debug);
 
@@ -294,6 +295,7 @@ void acl_event_free(ACL_EVENT *eventp)
 		acl_myfree(timer);
 	}
 
+	acl_fifo_free(eventp->timers, NULL);
 	acl_myfree(eventp->fdtabs);
 	acl_myfree(eventp->ready);
 	free_fn(eventp);
@@ -424,6 +426,16 @@ void acl_event_set_delay_sec(ACL_EVENT *eventp, int sec)
 void acl_event_set_delay_usec(ACL_EVENT *eventp, int usec)
 {
 	eventp->delay_usec = usec;
+}
+
+int acl_event_get_delay_sec(ACL_EVENT *eventp)
+{
+	return eventp->delay_sec;
+}
+
+int acl_event_get_delay_usec(ACL_EVENT *eventp)
+{
+	return eventp->delay_usec;
 }
 
 int acl_event_use_thread(ACL_EVENT *eventp)

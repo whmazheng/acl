@@ -1,8 +1,8 @@
 #pragma once
-#include "acl_cpp/acl_cpp_define.hpp"
+#include "../acl_cpp_define.hpp"
 #include <map>
-#include "acl_cpp/stdlib/string.hpp"
-#include "acl_cpp/session/session.hpp"
+#include "../stdlib/string.hpp"
+#include "session.hpp"
 
 namespace acl
 {
@@ -49,7 +49,7 @@ protected:
 private:
 	redis_client_cluster& cluster_;
 	redis* command_;
-	size_t max_conns_;
+	// size_t max_conns_;
 	std::map<string, session_string*> buffers_;
 };
 

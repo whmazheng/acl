@@ -18,6 +18,12 @@
 #elif	defined(ACL_UNIX)
 #include <stdlib.h>
 #include <unistd.h>
+#ifndef _GNU_SOURCE 
+#define _GNU_SOURCE
+#endif
+#ifndef __USE_UNIX98
+# define __USE_UNIX98
+#endif
 #include <pthread.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -94,9 +100,30 @@ struct ACL_LOG {
 static int  __log_thread_id = 0;
 static ACL_FIFO *__loggers = NULL;
 
+static int __log_close_onexec = 1;
+
+void acl_log_close_onexec(int yes)
+{
+	__log_close_onexec = yes;
+}
+
 void acl_log_add_tid(int onoff)
 {
 	__log_thread_id = onoff ? 1 : 0;
+}
+
+static void init_log_mutex(acl_pthread_mutex_t *lock)
+{
+#ifdef ACL_UNIX
+	int n1, n2;
+	pthread_mutexattr_t attr;
+
+	n1 = pthread_mutexattr_init(&attr);
+	n2 = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+	thread_mutex_init(lock, !n1 && !n2 ? &attr : NULL);
+#else
+	thread_mutex_init(lock, NULL);
+#endif
 }
 
 void acl_log_fp_set(ACL_VSTREAM *fp, const char *logpre)
@@ -120,7 +147,8 @@ void acl_log_fp_set(ACL_VSTREAM *fp, const char *logpre)
 	}
 
 #ifdef	ACL_UNIX
-	acl_close_on_exec(ACL_VSTREAM_SOCK(fp), ACL_CLOSE_ON_EXEC);
+	if (__log_close_onexec)
+		acl_close_on_exec(ACL_VSTREAM_SOCK(fp), ACL_CLOSE_ON_EXEC);
 #endif
 	log = (ACL_LOG*) calloc(1, sizeof(ACL_LOG));
 	log->fp = fp;
@@ -128,12 +156,16 @@ void acl_log_fp_set(ACL_VSTREAM *fp, const char *logpre)
 	log->type = ACL_LOG_T_UNKNOWN;
 	log->lock = (acl_pthread_mutex_t*)
 		calloc(1, sizeof(acl_pthread_mutex_t));
-	thread_mutex_init(log->lock, NULL);
+	init_log_mutex(log->lock);
 	if (logpre && *logpre)
 		snprintf(log->logpre, sizeof(log->logpre), "%s", logpre);
 	else
 		log->logpre[0] = 0;
 	log->flag |= ACL_LOG_F_FIXED;
+	if (fp->type & ACL_VSTREAM_TYPE_FILE)
+		log->type = ACL_LOG_T_FILE;
+	else if (fp->type & ACL_VSTREAM_TYPE_LISTEN_INET)
+		log->type= ACL_LOG_T_UDP;
 	private_fifo_push(__loggers, log);
 }
 
@@ -172,10 +204,16 @@ static int open_file_log(const char *filename, const char *logpre)
 	}
 
 	fp = private_vstream_fhopen(fh, O_RDWR);
+
+#if 0
 	acl_vstream_set_path(fp, filename);
+#else
+	fp->path = strdup(filename);
+#endif
 
 #ifdef	ACL_UNIX
-	acl_close_on_exec(fh, ACL_CLOSE_ON_EXEC);
+	if (__log_close_onexec)
+		acl_close_on_exec(fh, ACL_CLOSE_ON_EXEC);
 #endif
 
 	log = (ACL_LOG*) calloc(1, sizeof(ACL_LOG));
@@ -185,7 +223,7 @@ static int open_file_log(const char *filename, const char *logpre)
 	log->type = ACL_LOG_T_FILE;
 	log->lock = (acl_pthread_mutex_t*)
 		calloc(1, sizeof(acl_pthread_mutex_t));
-	thread_mutex_init(log->lock, NULL);
+	init_log_mutex(log->lock);
 	if (logpre && *logpre)
 		snprintf(log->logpre, sizeof(log->logpre), "%s", logpre);
 	else
@@ -225,17 +263,19 @@ static int reopen_log(ACL_LOG *log)
 		RETURN(-1);
 
 	if (log->fp->path) {
-		acl_myfree(log->fp->path);
+		free(log->fp->path);
 		log->fp->path = NULL;
 	}
+#if 0
 	if (log->fp->addr_local) {
-		acl_myfree(log->fp->addr_local);
+		free(log->fp->addr_local);
 		log->fp->addr_local = NULL;
 	}
 	if (log->fp->addr_peer) {
-		acl_myfree(log->fp->addr_peer);
+		free(log->fp->addr_peer);
 		log->fp->addr_peer = NULL;
 	}
+#endif
 
 	private_vstream_close(log->fp);
 	acl_assert(log->path);
@@ -512,6 +552,44 @@ static int open_log(const char *recipient, const char *logpre)
 		return open_file_log(recipient, logpre);
 }
 
+#ifdef	ACL_UNIX
+static void fork_prepare(void)
+{
+	if (__loggers != NULL) {
+		ACL_ITER iter;
+		acl_foreach(iter, __loggers) {
+			ACL_LOG *log = (ACL_LOG *) iter.data;
+			if (log->lock)
+				thread_mutex_lock(log->lock);
+		}
+	}
+}
+
+static void fork_in_parent(void)
+{
+	if (__loggers != NULL) {
+		ACL_ITER iter;
+		acl_foreach(iter, __loggers) {
+			ACL_LOG *log = (ACL_LOG *) iter.data;
+			if (log->lock)
+				thread_mutex_unlock(log->lock);
+		}
+	}
+}
+
+static void fork_in_child(void)
+{
+	if (__loggers != NULL) {
+		ACL_ITER iter;
+		acl_foreach(iter, __loggers) {
+			ACL_LOG *log = (ACL_LOG *) iter.data;
+			if (log->lock)
+				init_log_mutex(log->lock);
+		}
+	}
+}
+#endif
+
 /*
  * recipients 可以是以下日志格式的组合:
  *  tcp:127.0.0.1:8088
@@ -547,7 +625,12 @@ int acl_open_log(const char *recipients, const char *logpre)
 			return -1;
 		}
 	}
+
 	acl_argv_free(argv);
+
+#ifdef	ACL_UNIX
+	pthread_atfork(fork_prepare, fork_in_parent, fork_in_child);
+#endif
 	return 0;
 }
 
@@ -660,6 +743,9 @@ static void file_vsyslog(ACL_LOG *log, const char *info,
 	char   fmtstr[128], tbuf[1024], *buf;
 	size_t len;
 
+	if (log->lock)
+		thread_mutex_lock(log->lock);
+
 	acl_logtime_fmt(fmtstr, sizeof(fmtstr));
 
 	if (__log_thread_id) {
@@ -697,9 +783,6 @@ static void file_vsyslog(ACL_LOG *log, const char *info,
 	}
 
 	buf = get_buf(tbuf, fmt, ap, &len);
-
-	if (log->lock)
-		thread_mutex_lock(log->lock);
 
 	if (private_vstream_writen(log->fp, buf, len) == ACL_VSTREAM_EOF
 		|| private_vstream_writen(log->fp, "\r\n", 2) == ACL_VSTREAM_EOF)
@@ -851,17 +934,19 @@ void acl_close_log()
 
 		if (log->fp) {
 			if (log->fp->path) {
-				acl_myfree(log->fp->path);
+				free(log->fp->path);
 				log->fp->path = NULL;
 			}
+#if 0
 			if (log->fp->addr_local) {
-				acl_myfree(log->fp->addr_local);
+				free(log->fp->addr_local);
 				log->fp->addr_local = NULL;
 			}
 			if (log->fp->addr_peer) {
-				acl_myfree(log->fp->addr_peer);
+				free(log->fp->addr_peer);
 				log->fp->addr_peer = NULL;
 			}
+#endif
 			private_vstream_close(log->fp);
 		}
 

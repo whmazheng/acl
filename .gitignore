@@ -19,6 +19,14 @@
 *.la
 *.lib
 *.a
+*.user
+*.exe
+*.VC.db
+x64/
+build/
+Debug/
+Release/
+dist/
 acl_cpp_vc2015.VC.VC.opendb
 acl_cpp_vc2015.VC.db
 app/gson/debug/
@@ -134,3 +142,7 @@ lib_acl_cpp/src/acl_stdafx.hpp.gch
 lib_protocol/Debug/
 lib_protocol/debug/
 lib_rpc/Debug/
+
+# xmake
+.xmake
+.DS_Store
